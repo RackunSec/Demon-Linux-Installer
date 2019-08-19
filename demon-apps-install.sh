@@ -7,7 +7,8 @@ IFS=$'\n' # required for for() loop
 SPANFONT="<span font='Ubuntu Condensed 11'>"
 WINDOWICON="/usr/share/demon/images/icons/64-icon.png"
 WINDOWIMAGE="/usr/share/demon/images/icons/64-icon.png"
-
+APPNAME="Demon Linux App Store"
+APPTEXT="\n\nWelcome to the Demon Linux App Store - where everything's free. Simply select an app below by checking it.\n"
 # start the "installing app: XYZ" progress bar dialog:
 progressBar () {
  tail -f /etc/issue |yad --progress --pulsate --no-buttons --auto-close \
@@ -24,16 +25,18 @@ installApp (){
   arg=$1;
   arg=$(echo $arg|sed -r 's/TRUE\|([^|]+)\|.*/\1/');
   # Check if App is already installed (could have been pre-checked in the checklist)
-  if [ $(which "${arg,,}"|wc -l) -ne 1 ] # uses syntax sugar to lowercase the name
+  if [ $(which "${arg,,}"|wc -l) -ne 1 ] && [ $(which $arg|wc -l) -ne 1 ] # uses syntax sugar to lowercase the name
     then
       printf "Installing app: $arg\n"
       progressBar $arg
+      ### Spotify
       if [ "$arg" == "Spotify" ]
         then # Install Spotify:
           apt install snapd
           snap install spotify
           echo "export PATH=$PATH:/snap/bin:/snap/sbin" >> ~/.bashrc # update our PATH
           #echo # DEBUG
+      ### Cutter
       elif [ "$arg" == "Cutter" ]
         then # Install Cutter:
           wget https://github.com/radareorg/cutter/releases/download/v1.8.3/Cutter-v1.8.3-x64.Linux.AppImage -O /usr/local/sbin/Cutter
@@ -45,11 +48,11 @@ installApp (){
 }
 
 # This may seem crazy, but it's for the UI/UX sake:
-for app in $(yad --width=600 --height=400 --title="Demon Linux - Install Extra Apps"\
+for app in $(yad --width=600 --height=400 --title=$APPNAME\
  --list --checklist --column=Install --column="App Name" --column=Description \
  --image=$WINDOWIMAGE \
  --window-icon=$WINDOWICON \
- --text="\n\nPlease choose any additional apps that you would like installed from the choices below.\n" \
+ --text=$APPTEXT \
 $(if [[ $(which spotify|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Spotify" "Spotify desktop app" \
 $(if [[ $(which Cutter|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Cutter" "Cutter reverse engineering tool" \
 $(if [[ $(which atom|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Atom" "Atom IDE" \
