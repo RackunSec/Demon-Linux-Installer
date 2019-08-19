@@ -1,6 +1,6 @@
 #!/bin/bash
 #  Douglas Berdeaux, 2019
-#  Version 1.14.1 - for Demon LINUX
+#  Version 1.8.19a - for Demon LINUX
 
 # Check UID:
 if [ "$(whoami)" != "root" ]; then
@@ -12,7 +12,6 @@ fi
 #####=================
 #DIALOG=$(which dialog)
 KERNEL=4.9.0-7-amd64 # update this. Do not put the "linux-image-" part.
-# linux-image-4.9.0-7-amd64 (1.14.2018)
 export WORKINGDIR=/mnt/demon
 TITLE="--title "
 ENTRY="--inputbox "
@@ -21,7 +20,7 @@ YESNO="--yesno "
 MSGBOX="--msgbox "
 PASSWORD="--passwordbox "
 TITLETEXT="Demon Linux - Live Installer"
-WINDOWICON="/usr/share/demon/images/icons/thedemon-small.png"
+WINDOWICON="/usr/share/demon/images/icons/64-icon.png"
 DIALOGMENU="$(which yad) --window-icon=$WINDOWICON --width=500 --height=200 --center"
 DIALOG="$(which yad) --window-icon=$WINDOWICON --center"
 TITLE="--always-print-result --dialog-sep --image=$WINDOWICON --title="
@@ -50,7 +49,7 @@ killBar () { # tail was a really good idea here, Tony :)
 }
 # This function quits the installer:
 quit (){
-  $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT Quitting the installer now.   </span>"
+  $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT \nQuitting the installer now.   </span>"
   exit 1
 }
 
@@ -72,7 +71,11 @@ killBar
 
 # Perform update for icon:
 progressBar "Updating Demon Image ..." &
-wget https://demonlinux.com/images/icons/thedemon-small.png -O /usr/share/demon/images/icons/thedemon-small.png
+if [ ! -d "/usr/share/demon/images/icons" ];
+ then
+  mkdir -p /usr/share/demon/images/icons
+fi
+wget https://demonlinux.com/images/icons/64-icon.png -O /usr/share/demon/images/icons/thedemon-small.png
 killBar;
 progressBar "Updating respositories and YAD ..." &
 apt update
@@ -80,7 +83,7 @@ apt install yad -y
 killBar;
 
 $DIALOG $TITLE"$TITLETEXT" --button=Yes:0 --button=No:1 --button=Help:2 \
- --text="${SPANFONT}This is the <b>$OS</b> Disk Installation Utility.\nIt is <b>HIGHLY RECOMMENDED</b> that <b>$OS</b>\nis installed in a <u>virtualized environment</u> to ensure the best,\nuniform experience for all users.\n\nWeakNet Labs cannot support every piece of hardware\nas I am only a single person.\n\nDo you want to continue?\n\nFor a complete video tutorial hit <b>Help</b> below.</span>  "
+ --text="${SPANFONT}\nThis is the <b>$OS</b> Disk Installation Utility.\nIt is <b>HIGHLY RECOMMENDED</b> that <b>$OS</b>\nis installed in a <u>virtualized environment</u> to ensure the best,\nuniform experience for all users.\n\nWeakNet Labs cannot support every piece of hardware\nas I am only a single person.\n\nDo you want to continue?\n\nFor a complete video tutorial hit <b>Help</b> below.</span>  "
 ans=$?
 if [ $ans = 1 ]; then
  exit 0
@@ -100,7 +103,7 @@ yad --text="$SPANFONT Let's select a disk to install $OS to and start up <b>$PAR
 
 # Choose the drive to install to:
 OFS=$IFS # Field Separator for loops.
-IFS="\n" # chnage to newline from \s and we will revert later.
+IFS=$"\n" # change to newline from \s and we will revert later.
 # ONLY SHOW PARTITIONS:
 DRIVES=$(cat /proc/partitions | grep sd | egrep -v 'sd[a-z][0-9]')
 
