@@ -1,5 +1,6 @@
 #!/bin/bash
 #  Douglas Berdeaux, 2019
+#  weaknetlabs@gmail.com
 #  Version 1.8.19a - for Demon LINUX
 
 # Check UID:
