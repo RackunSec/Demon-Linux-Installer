@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Demon App Store
+Comment=Where everything's free!
+Exec=demon-app-store.sh
+Icon=/root/Code/Demon-Linux-Installer/icons/128-icon-color.png
+Path=/root/Code/Demon-Linux-Installer
+Terminal=false
+StartupNotify=false

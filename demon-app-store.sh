@@ -22,7 +22,7 @@ killBar () {
 }
 
 downloadFile () { # pass to me "URI,Title,OutputFile" :)
-  wget $1 -O $3  2>&1 | sed -u 's/^[a-zA-Z\-].*//; s/.* \{1,2\}\([0-9]\{1,3\}\)%.*/\1\n#Downloading ...\1%/; s/^20[0-9][0-9].*/#Done./'\
+  wget $1 --no-check-certificate -U mozilla -O $3  2>&1 | sed -u 's/^[a-zA-Z\-].*//; s/.* \{1,2\}\([0-9]\{1,3\}\)%.*/\1\n#Downloading ...\1%/; s/^20[0-9][0-9].*/#Done./'\
   | yad --progress --title="Download in Progress" --window-icon=$WINDOWICON --image=$WINDOWIMAGE --width=350 --center --text="\nDownloading $2 ... " --auto-close --no-buttons --undecorated
 }
 
@@ -138,7 +138,7 @@ installApp () {
       ### Sublime text editor:
       elif [ "$arg" == "Sublime" ]
         then
-          downloadFile "https://download.sublimetext.com/sublime_text_3_build_3207_x64.tar.bz2 --no-check-certificate" $arg "/tmp/sublime_text_3_build_3207_x64.tar.bz2"
+          downloadFile "https://download.sublimetext.com/sublime_text_3_build_3207_x64.tar.bz2" $arg "/tmp/sublime_text_3_build_3207_x64.tar.bz2"
           cd /tmp
           progressBar "Installing $arg"
           tar vjxf sublime_text_3_build_3207_x64.tar.bz2
@@ -158,7 +158,7 @@ installApp () {
       elif [ "$arg" == "Kdenlive" ]
         then
           LOCALAREA=/usr/local/bin/kdenlive
-          downloadFile 'https://files.kde.org/kdenlive/release/Kdenlive-16.12.2-x86_64.AppImage --no-check-certificate' $arg $LOCALAREA
+          downloadFile 'https://files.kde.org/kdenlive/release/Kdenlive-16.12.2-x86_64.AppImage' $arg $LOCALAREA
           cd /tmp
           progressBar "Installing $arg"
           apt install -y ffmpeg libav-tools dvdauthor genisoimage
@@ -204,11 +204,24 @@ installApp () {
           cd /tmp
           dpkg -i slack-desktop-4.0.1-amd64.deb
           apt -f install
+      ### PyCharm (FREE)
+      elif [ "$arg" == "PyCharm" ]
+        then
+          LOCALAREA=/opt/pycharm-professional-2019.2.tar.gz
+          downloadFile 'https://download.jetbrains.com/python/pycharm-professional-2019.2.tar.gz' $arg $LOCALAREA
+          progressBar "Installing $arg ...  "
+          cd /opt/
+          tar vxzf pycharm-professional-2019.2.tar.gz
+          rm pycharm-professional-2019.2.tar.gz
+          if [ $(grep /opt/pycharm ~/.bashrc|wc -l) -eq 0 ] # ONLY add it if it's not there.
+            then
+              echo "PATH=\$PATH:/opt/pycharm-2019.2/bin" >> ~/.bashrc
+          fi
       ### Stacer:
       elif [ "$arg" == "Stacer" ]
         then
           LOCALAREA=/tmp/stacer_1.1.0_amd64.deb
-          downloadFile 'https://github.com/oguzhaninan/Stacer/releases/download/v1.1.0/stacer_1.1.0_amd64.deb --no-check-certificate' $arg $LOCALAREA
+          downloadFile 'https://github.com/oguzhaninan/Stacer/releases/download/v1.1.0/stacer_1.1.0_amd64.deb' $arg $LOCALAREA
           cd /tmp
           progressBar "Installing $arg"
           dpkg -i stacer_1.1.0_amd64.deb
@@ -232,6 +245,7 @@ main () {
    $(if [[ $(which spotify|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Spotify" "Spotify desktop app" \
    $(if [[ $(which slack|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Slack" "Slack collaboration tool" \
    $(if [[ $(which tor-browser|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Tor-Browser" "The Tor Project Browser"  \
+   $(if [[ $(which pycharm.sh|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "PyCharm" "The Python IDE for Professional Developers"  \
    $(if [[ $(which ptf|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "PTF" "TrustedSec's Pentester's Framework" \
    $(if [[ $(which maltego|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Maltego" "Paterva's information gathering tool" \
    $(if [[ $(which Cutter|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Cutter" "Cutter reverse engineering tool" \
