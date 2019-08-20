@@ -13,7 +13,7 @@ APPTEXT="\n\nWelcome to the Demon Linux App Store - where everything's free. Sim
 # start the "installing app: XYZ" progress bar dialog:
 progressBar () {
  tail -f /etc/issue |yad --progress --pulsate --auto-close --text="\n$SPANFONT $1 </span>\n" --width=350 --center\
- --title=$APPNAME --window-icon=$WINDOWICON --percentage=13 --progress-text="Please wait ..." --image=$WINDOWIMAGE &
+ --title=$APPNAME --window-icon=$WINDOWICON --percentage=13 --progress-text="Please wait ..." --image=$WINDOWIMAGE --undecorated --no-buttons &
 }
 
 # This function stops the loading bar message box by killing tail:
@@ -186,6 +186,15 @@ installApp () {
           add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
           apt update
           apt install code -y
+      ### Maltego CE:
+      elif [ "$arg" == "Maltego" ]
+        then
+          LOCALAREA=/tmp/Maltego.v4.2.6.12502.deb
+          downloadFile http://www.demonlinux.com/download/packages/Maltego.v4.2.6.12502.deb $arg $LOCALAREA
+          progressBar "Installing $arg ... "
+          cd /tmp
+          dpkg -i Maltego.v4.2.6.12502.deb
+          apt -f install -y
       ### Stacer:
       elif [ "$arg" == "Stacer" ]
         then
@@ -213,6 +222,7 @@ for app in $(yad --width=600 --height=400 --title=$APPNAME\
  $(if [[ $(which spotify|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Spotify" "Spotify desktop app" \
  $(if [[ $(which tor-browser|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Tor-Browser" "The Tor Project Browser"  \
  $(if [[ $(which ptf|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "PTF" "TrustedSec's Pentester's Framework" \
+ $(if [[ $(which maltego|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Maltego" "Paterva's information gathering tool" \
  $(if [[ $(which Cutter|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Cutter" "Cutter reverse engineering tool" \
  $(if [[ $(which atom|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Atom" "Atom IDE" \
  $(if [[ $(which eclipse|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Eclipse" "Eclipse IDE for Java" \
