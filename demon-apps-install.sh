@@ -5,20 +5,26 @@
 
 IFS=$'\n' # required for for() loop
 SPANFONT="<span font='Ubuntu Condensed 11'>"
-WINDOWICON="/usr/share/demon/images/icons/64-icon.png"
-WINDOWIMAGE="/usr/share/demon/images/icons/64-icon.png"
+#WINDOWICON="/usr/share/demon/images/icons/64-icon.png"
+WINDOWICON="icons/64-icon-padded.png"
+WINDOWIMAGE="icons/64-icon.png"
 APPNAME="Demon Linux App Store"
 APPTEXT="\n\nWelcome to the Demon Linux App Store - where everything's free. Simply select an app below by checking it.\n"
 # start the "installing app: XYZ" progress bar dialog:
 progressBar () {
  tail -f /etc/issue |yad --progress --pulsate --no-buttons --auto-close \
   --text="\n$SPANFONT $1 </span>\n" --width=350 --height=17 --center --title=$TITLETEXT \
-  --window-icon=$WINDOWICON --percentage=13 --progress-text="Please wait ..." --image=$WINDOWICON &
+  --window-icon=$WINDOWICON --percentage=13 --progress-text="Please wait ..." --image=$WINDOWICON --undecorated &
 }
 
 # This function stops the loading bar message box by killing tail:
-killBar () { # tail was a really good idea here, Tony :)
+killBar () {
  killall -KILL tail 2>/dev/null
+}
+
+downloadFile () { # pass to me "URI,Title,OutputFile" :)
+  wget $1 -O $3  2>&1 | sed -u 's/^[a-zA-Z\-].*//; s/.* \{1,2\}\([0-9]\{1,3\}\)%.*/\1\n#Downloading ...\1%/; s/^20[0-9][0-9].*/#Done./'\
+  | yad --progress --title="Download in Progress" --window-icon=$WINDOWICON --image=$WINDOWIMAGE --width=350 --center --text="\nDownloading $2 ... " --auto-close --no-buttons --undecorated
 }
 
 complete () {
@@ -43,7 +49,28 @@ installApp () {
             then
               echo "export PATH=\$PATH:/snap/bin:/snap/sbin" >> ~/.bashrc # update our PATH
           fi
-      ### Cutter:
+      ### Pentester's Framework from TrustedSec:
+      elif [ "$arg" == "PTF" ]
+        then
+          progressBar "Installing PenTesters Framework"
+          apt install python-pip
+          apt install python-pexpect
+          cd /infosec && git clone https://github.com/trustedsec/ptf
+          echo "PATH=\$PATH:/infosec/ptf"
+      ### TorBrowser
+      elif [ "$arg" == "Tor-Browser" ]
+        then
+          downloadFile https://www.torproject.org/dist/torbrowser/8.5.4/tor-browser-linux64-8.5.4_en-US.tar.xz "Tor-Browser" "/opt/tor-browser-linux64-8.5.4_en-US.tar.xz"
+          cd /opt
+          progressBar "Installing $arg"
+          xz -d tor-browser-linux64-8.5.4_en-US.tar.xz
+          tar vxf tor-browser-linux64-8.5.4_en-US.tar
+          #echo "PATH=\$PATH:/opt/tor-browser_en-US/Browser" >> ~/.bashrc
+          rm tor-browser-linux64-8.5.4_en-US.tar
+          sed -ie 's/`" -eq 0/`" -ne 0/' tor-browser_en-US/Browser/start-tor-browser # whoopsey daisey!
+          echo "cd /opt/tor-browser_en-US/Browser && ./start-tor-browser" > /usr/local/sbin/tor-browser
+          chmod +x /usr/local/sbin/tor-browser
+      ### Cutter
       elif [ "$arg" == "Cutter" ]
         then # Install Cutter:
           progressBar "Downloading $arg"
@@ -96,11 +123,10 @@ installApp () {
           echo "brave-browser-script --no-sandbox" > /usr/bin/brave-browser-stable
           chmod +x /usr/bin/brave-browser-stable
       ### Googlefornia's shitty browser:
-      elif [ "$arg" == "Chrome" ]
+      elif [ "$arg" == "Google-Chrome" ]
         then
-          progressBar "Downloading $arg"
-          cd /tmp && wget http://demonlinux.com/download/packages/google-chrome-stable_current_amd64.deb
-          killBar
+          downloadFile 'http://demonlinux.com/download/packages/google-chrome-stable_current_amd64.deb' 'Google-Chrome' '/tmp/google-chrome-stable_current_amd64.deb'
+          cd /tmp
           progressBar "Installing $arg"
           dpkg -i google-chrome-stable_current_amd64.deb
           apt -f install -y
@@ -124,6 +150,7 @@ installApp () {
             then # create the PATH entry:
               echo "PATH=\$PATH:/opt/sublime3" >> ~/.bashrc
           fi
+      ### SimpleNote
       elif [ "$arg" == "SimpleNote" ]
         then
           progressBar "Downloading $arg"
@@ -131,14 +158,17 @@ installApp () {
           killBar
           progressBar "Installing $arg"
           dpkg -i Simplenote-linux-1.7.0-amd64.deb
+      ### KdenLive:
       elif [ "$arg" == "Kdenlive" ]
         then
           progressBar "Downloading $arg"
           LOCALAREA=/usr/local/bin/kdenlive
           cd /tmp && wget https://files.kde.org/kdenlive/release/Kdenlive-16.12.2-x86_64.AppImage --no-check-certificate -O $LOCALAREA
           killBar
-          progresBar "Installing $arg"
+          progressBar "Installing $arg"
+          apt install -y ffmpeg libav-tools dvdauthor genisoimage
           chmod +x $LOCALAREA
+      ### ShotCut:
       elif [ "$arg" == "Shotcut" ]
         then
           progressBar "Downloading $arg"
@@ -147,6 +177,7 @@ installApp () {
           killBar
           progressBar "Installing $arg"
           chmod +x $LOCALAREA
+      ### Franz Messaging:
       elif [ "$arg" == "Franz" ]
         then
           LOCALAREA=/usr/local/bin/franz
@@ -155,6 +186,7 @@ installApp () {
           killBar
           progressBar "Installing $arg"
           chmod +x $LOCALAREA
+      ### Visual Studio:
       elif [ "$arg" == "VisualStudio" ]
         then
           progressBar "Installing $arg"
@@ -163,6 +195,7 @@ installApp () {
           add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
           apt update
           apt install code -y
+      ### Stacer:
       elif [ "$arg" == "Stacer" ]
         then
           progressBar "Downloading $arg"
@@ -171,6 +204,8 @@ installApp () {
           progressBar "Installing $arg"
           dpkg -i stacer_1.1.0_amd64.deb
           apt -f install -y
+      else
+          printf "[!] Unknown app was requested! $arg\n\n"
       fi
       sleep 1 # DEBUG
       killBar
@@ -183,19 +218,21 @@ for app in $(yad --width=600 --height=400 --title=$APPNAME\
  --image=$WINDOWIMAGE \
  --window-icon=$WINDOWICON \
  --text=$APPTEXT \
-$(if [[ $(which spotify|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Spotify" "Spotify desktop app" \
-$(if [[ $(which Cutter|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Cutter" "Cutter reverse engineering tool" \
-$(if [[ $(which atom|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Atom" "Atom IDE" \
-$(if [[ $(which eclipse|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Eclipse" "Eclipse IDE for Java" \
-$(if [[ $(which vlc|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "VLC" "Multimedia player and framework" \
-$(if [[ $(which brave-browser|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Brave-Browser" "Much more than a web browser" \
-$(if [[ $(which google-chrome|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Google-Chrome" "Google's web browser" \
-$(if [[ $(which sublime_text|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Sublime_Text" "Sublime text editor" \
-$(if [[ $(which simplenote|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "SimpleNote" "The simplest way to keep notes" \
-$(if [[ $(which kdenlive|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Kdenlive" "Video editor program" \
-$(if [[ $(which shotcut|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Shotcut" "Video editor program" \
-$(if [[ $(which franz|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Franz" "Messaging client app" \
-$(if [[ $(which VisualStudio|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Visual Studio Code" "Microsoft's code editor" \
-$(if [[ $(which stacer|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Stacer" "System optimizer app" ); do installApp $app; done
+ $(if [[ $(which spotify|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Spotify" "Spotify desktop app" \
+ $(if [[ $(which tor-browser|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Tor-Browser" "The Tor Project Browser"  \
+ $(if [[ $(which ptf|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "PTF" "TrustedSec's Pentester's Framework" \
+ $(if [[ $(which Cutter|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Cutter" "Cutter reverse engineering tool" \
+ $(if [[ $(which atom|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Atom" "Atom IDE" \
+ $(if [[ $(which eclipse|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Eclipse" "Eclipse IDE for Java" \
+ $(if [[ $(which vlc|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "VLC" "Multimedia player and framework" \
+ $(if [[ $(which brave-browser|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Brave-Browser" "Much more than a web browser" \
+ $(if [[ $(which google-chrome|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Google-Chrome" "Google's web browser" \
+ $(if [[ $(which sublime_text|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Sublime_Text" "Sublime text editor" \
+ $(if [[ $(which simplenote|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "SimpleNote" "The simplest way to keep notes" \
+ $(if [[ $(which kdenlive|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Kdenlive" "Video editor program" \
+ $(if [[ $(which shotcut|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Shotcut" "Video editor program" \
+ $(if [[ $(which franz|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Franz" "Messaging client app" \
+ $(if [[ $(which VisualStudio|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Visual Studio Code" "Microsoft's code editor" \
+ $(if [[ $(which stacer|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Stacer" "System optimizer app" ); do installApp $app; done
 # All done!
 complete
