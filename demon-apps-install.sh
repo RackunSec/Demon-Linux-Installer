@@ -26,7 +26,7 @@ complete () {
   yad --text="\nAll packages that you requested have been installed.  \n" --title="Thank you for visting the Demon Linux App Store" --image=$WINDOWIMAGE --window-icon=$WINDOWICON
 }
 
-installApp (){
+installApp () {
   arg=$1;
   arg=$(echo $arg|sed -r 's/TRUE\|([^|]+)\|.*/\1/');
   # Check if App is already installed (could have been pre-checked in the checklist)
@@ -41,7 +41,7 @@ installApp (){
           snap install spotify
           if [ $(grep /snap/bin ~/.bashrc|wc -l) -eq 0 ]
             then
-              echo "export PATH=$PATH:/snap/bin:/snap/sbin" >> ~/.bashrc # update our PATH
+              echo "export PATH=\$PATH:/snap/bin:/snap/sbin" >> ~/.bashrc # update our PATH
           fi
       ### Cutter:
       elif [ "$arg" == "Cutter" ]
@@ -70,7 +70,7 @@ installApp (){
           mv /tmp/eclipse /opt/ # toss it into a shared space
           if [ $(grep /opt/eclipse ~/.bashrc|wc -l) -eq 0 ]
             then # add it to the PATH
-              echo "export PATH=$PATH:/opt/eclipse" >> ~/.bashrc # update the path
+              echo "export PATH=\$PATH:/opt/eclipse" >> ~/.bashrc # update the path
           fi
           bash -c # new shell
       ### VLC Media Player:
@@ -122,8 +122,55 @@ installApp (){
           mv sublime_text_3 /opt/sublime3
           if [ $(grep /opt/sublime3 ~/.bashrc|wc -l) -eq 0 ]
             then # create the PATH entry:
-              echo PATH=$PATH:/opt/sublime3 >> ~/.bashrc
+              echo "PATH=\$PATH:/opt/sublime3" >> ~/.bashrc
           fi
+      elif [ "$arg" == "SimpleNote" ]
+        then
+          progressBar "Downloading $arg"
+          cd /tmp && wget 'https://github.com/Automattic/simplenote-electron/releases/download/v1.7.0/Simplenote-linux-1.7.0-amd64.deb'
+          killBar
+          progressBar "Installing $arg"
+          dpkg -i Simplenote-linux-1.7.0-amd64.deb
+      elif [ "$arg" == "Kdenlive" ]
+        then
+          progressBar "Downloading $arg"
+          LOCALAREA=/usr/local/bin/kdenlive
+          cd /tmp && wget https://files.kde.org/kdenlive/release/Kdenlive-16.12.2-x86_64.AppImage --no-check-certificate -O $LOCALAREA
+          killBar
+          progresBar "Installing $arg"
+          chmod +x $LOCALAREA
+      elif [ "$arg" == "Shotcut" ]
+        then
+          progressBar "Downloading $arg"
+          LOCALAREA=/usr/local/bin/shotcut
+          wget https://github.com/mltframework/shotcut/releases/download/v19.08.16/Shotcut-190816.glibc2.14-x86_64.AppImage -O $LOCALAREA
+          killBar
+          progressBar "Installing $arg"
+          chmod +x $LOCALAREA
+      elif [ "$arg" == "Franz" ]
+        then
+          LOCALAREA=/usr/local/bin/franz
+          progressBar "Downloading $arg"
+          wget https://github.com/meetfranz/franz/releases/download/v5.2.0/franz-5.2.0-x86_64.AppImage -O $LOCALAREA
+          killBar
+          progressBar "Installing $arg"
+          chmod +x $LOCALAREA
+      elif [ "$arg" == "VisualStudio" ]
+        then
+          progressBar "Installing $arg"
+          apt install software-properties-common apt-transport-https curl software-properties-common -y
+          curl -sSL https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          add-apt-repository "deb [arch=amd64] https://packages.microsoft.com/repos/vscode stable main"
+          apt update
+          apt install code -y
+      elif [ "$arg" == "Stacer" ]
+        then
+          progressBar "Downloading $arg"
+          cd /tmp && wget 'https://github.com/oguzhaninan/Stacer/releases/download/v1.1.0/stacer_1.1.0_amd64.deb' --no-check-certificate
+          killBar
+          progressBar "Installing $arg"
+          dpkg -i stacer_1.1.0_amd64.deb
+          apt -f install -y
       fi
       sleep 1 # DEBUG
       killBar
@@ -143,14 +190,12 @@ $(if [[ $(which eclipse|wc -l) -eq 1 ]]; then printf "true"; else printf "false"
 $(if [[ $(which vlc|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "VLC" "Multimedia player and framework" \
 $(if [[ $(which brave-browser|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Brave-Browser" "Much more than a web browser" \
 $(if [[ $(which google-chrome|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Google-Chrome" "Google's web browser" \
-$(if [[ $(which sublime|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Sublime" "Sublime text editor" \
-$(if [[ $(which clementine|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Clementine" "Modern music player" \
+$(if [[ $(which sublime_text|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Sublime_Text" "Sublime text editor" \
 $(if [[ $(which simplenote|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "SimpleNote" "The simplest way to keep notes" \
 $(if [[ $(which kdenlive|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Kdenlive" "Video editor program" \
 $(if [[ $(which shotcut|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Shotcut" "Video editor program" \
 $(if [[ $(which franz|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Franz" "Messaging client app" \
 $(if [[ $(which VisualStudio|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Visual Studio Code" "Microsoft's code editor" \
-$(if [[ $(which stracer|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Stracer" "System optimizer app" \
-$(if [[ $(which gdebi|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "GDebi" "Debian .deb GUI installer"); do installApp $app; done
+$(if [[ $(which stacer|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Stacer" "System optimizer app" ); do installApp $app; done
 # All done!
 complete
