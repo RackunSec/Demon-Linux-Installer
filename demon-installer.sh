@@ -84,7 +84,11 @@ apt install yad -y
 killBar;
 
 $DIALOG $TITLE"$TITLETEXT" --button=Yes:0 --button=No:1 --button=Help:2 \
- --text="${SPANFONT}\nThis is the <b>$OS</b> Disk Installation Utility.\nIt is <b>HIGHLY RECOMMENDED</b> that <b>$OS</b>\nis installed in a <u>virtualized environment</u> to ensure the best,\nuniform experience for all users.\n\nWeakNet Labs cannot support every piece of hardware\nas I am only a single person.\n\nDo you want to continue?\n\nFor a complete video tutorial hit <b>Help</b> below.</span>  "
+ --text="${SPANFONT}\nThis is the <b>$OS</b> Disk Installation Utility.\nIt is <b>HIGHLY RECOMMENDED</b> that <b>$OS</b>\n\
+is installed in a <u>virtualized environment</u> to ensure the best,\nuniform experience for all users.\n\nWeakNet Labs cannot \
+support every piece of hardware\nas I am only a single person.\n\nDo you want to continue?\n\nFor a complete video tutorial hit \
+<b>Help</b> below.</span>  " --height=35 --fixed
+
 ans=$?
 if [ $ans = 1 ]; then
  exit 0
@@ -100,7 +104,7 @@ echo "LOCAL" >> /etc/adjtime
 # Fix for gparted being inhibited by udisks-daemon:
 killall -KILL udisks-daemon 2>/dev/null
 
-yad --text="$SPANFONT Let's select a disk to install $OS to and start up <b>$PARTITIONPROG</b>.\nIn GParted create one Root partition labeled <b>/</b> with the   \nFS format of your choice and one Linux-Swap partition labeled <b>swap</b>.   \nPay attention to the drive names in the \"Partition\" column,\n\n E.g.:<b>sda1</b>, <b>sda2</b>.\n\nWhen done with $PARTITIONPROG, hit the <b>X</b> button and this installation will continue.</span>   " --center --window-icon=$WINDOWICON --no-wrap --title="$OS Installer"
+yad --text="$SPANFONT Let's select a disk to install $OS to and start up <b>$PARTITIONPROG</b>.\nIn GParted create one Root partition labeled <b>/</b> with the   \nFS format of your choice and one Linux-Swap partition labeled <b>swap</b>.   \nPay attention to the drive names in the \"Partition\" column,\n\n E.g.:<b>sda1</b>, <b>sda2</b>.\n\nWhen done with $PARTITIONPROG, hit the <b>X</b> button and this installation will continue.</span>   " --center --window-icon=$WINDOWICON --no-wrap --title="$OS Installer" --image=$WINDOWICON --fixed
 
 # Choose the drive to install to:
 OFS=$IFS # Field Separator for loops.
@@ -234,7 +238,9 @@ if [ "$HFSTYPE" = "noformat" ]; then
  HOMETEXT=", $HOMEPART will not be formatted but used for \n/home "
 fi
 ## Confirmation:
-$DIALOG $TITLE"$TITLETEXT" $YESNO $TEXT"$SPANFONT <b>Please <u>verify</u> that this information is correct.</b>\n\nYour $OS system will be installed on an<b> $FSTYPE</b> formatted <b>$TARGETPART</b> partition<b>$HOMETEXT</b>   \n\nDo you want to continue?</span>"
+$DIALOG $TITLE"$TITLETEXT" $YESNO $TEXT"$SPANFONT <b>Please <u>verify</u> that this information is correct.\
+</b>\n\nYour $OS system will be installed on an<b> $FSTYPE</b> formatted <b>$TARGETPART</b> partition<b>\
+$HOMETEXT</b>   \n\nDo you want to continue?</span>" --fixed
 if [ $? != 0 ]; then
  quit;
 fi
@@ -338,7 +344,7 @@ chroot $WORKINGDIR /tmp/grub-install.sh
 printf "[!] Installing Grub to /dev/$PARTDRIVE\n";
 chroot $WORKINGDIR grub-install --root-directory=/ --no-floppy /dev/$PARTDRIVE;
 # I know that this is very specific as to what OS/kernel to install, but I am still working this aht:
-chroot $WORKINGDIR apt -y -V install linux-image-$KERNEL --reinstall # this will generate a new /boot/vmlinuz, hopefully. 
+chroot $WORKINGDIR apt -y -V install linux-image-$KERNEL --reinstall # this will generate a new /boot/vmlinuz, hopefully.
 chroot $WORKINGDIR update-initramfs -c -k $KERNEL # create a new symlink for /initrd
 chroot $WORKINGDIR update-grub # required to make grub.cfg!
 killBar;
@@ -393,3 +399,5 @@ if [ $ans = 0 ]; then
 elif [ $ans = 1 ];then # Awe, snacks!
  $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT Thank you for choosing <b>WeakNet Laboratories!</b>   \n\n~Douglas Berdeaux\nWeakNetLabs@Gmail.com</span>" --image=$WINDOWICON --window-image=$WINDOWICON;
 fi
+# clean up:
+rm /root/Desktop/Install\ Me.desktop
