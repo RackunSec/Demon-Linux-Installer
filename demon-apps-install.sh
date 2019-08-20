@@ -6,15 +6,14 @@
 IFS=$'\n' # required for for() loop
 SPANFONT="<span font='Ubuntu Condensed 11'>"
 #WINDOWICON="/usr/share/demon/images/icons/64-icon.png"
-WINDOWICON="icons/64-icon-padded.png"
-WINDOWIMAGE="icons/64-icon.png"
+WINDOWICON="$PWD/icons/64-icon-padded.png"
+WINDOWIMAGE="$PWD/icons/64-icon-padded.png"
 APPNAME="Demon Linux App Store"
 APPTEXT="\n\nWelcome to the Demon Linux App Store - where everything's free. Simply select an app below by checking it.\n"
 # start the "installing app: XYZ" progress bar dialog:
 progressBar () {
- tail -f /etc/issue |yad --progress --pulsate --no-buttons --auto-close \
-  --text="\n$SPANFONT $1 </span>\n" --width=350 --height=17 --center --title=$TITLETEXT \
-  --window-icon=$WINDOWICON --percentage=13 --progress-text="Please wait ..." --image=$WINDOWICON --undecorated &
+ tail -f /etc/issue |yad --progress --pulsate --auto-close --text="\n$SPANFONT $1 </span>\n" --width=350 --center\
+ --title=$APPNAME --window-icon=$WINDOWICON --percentage=13 --progress-text="Please wait ..." --image=$WINDOWIMAGE &
 }
 
 # This function stops the loading bar message box by killing tail:
@@ -27,9 +26,9 @@ downloadFile () { # pass to me "URI,Title,OutputFile" :)
   | yad --progress --title="Download in Progress" --window-icon=$WINDOWICON --image=$WINDOWIMAGE --width=350 --center --text="\nDownloading $2 ... " --auto-close --no-buttons --undecorated
 }
 
-complete () {
-  # we are done!
-  yad --text="\nAll packages that you requested have been installed.  \n" --title="Thank you for visting the Demon Linux App Store" --image=$WINDOWIMAGE --window-icon=$WINDOWICON
+complete () { # "--fixed" actually fixes a height issue BUG here:
+  # I'm aaaalll duuuhhhhh-uuuuhhhnnnnnnne!
+  yad --text="\nThank you for visting the Demon Linux App Store.  " --height=10 --fixed --title=$APPNAME --image=$WINDOWIMAGE --window-icon=$WINDOWICON --button=Exit:1
 }
 
 installApp () {
@@ -73,26 +72,25 @@ installApp () {
       ### Cutter
       elif [ "$arg" == "Cutter" ]
         then # Install Cutter:
-          progressBar "Downloading $arg"
-          wget https://github.com/radareorg/cutter/releases/download/v1.8.3/Cutter-v1.8.3-x64.Linux.AppImage -O /usr/local/sbin/Cutter
+          downloadFile https://github.com/radareorg/cutter/releases/download/v1.8.3/Cutter-v1.8.3-x64.Linux.AppImage $arg /usr/local/sbin/Cutter
           killBar
           progressBar "Installing Cutter"
           chmod +x /usr/local/sbin/Cutter
       ### Atom "IDE":
       elif [ "$arg" == "Atom" ]
         then
-          progressBar "Downloading $arg"
-          cd /tmp/ && wget https://github.com/atom/atom/releases/download/v1.40.0/atom-amd64.deb --no-check-certificate
+          downloadFile https://github.com/atom/atom/releases/download/v1.40.0/atom-amd64.deb $arg /tmp/atom-amd64.deb
           killBar
           progressBar "Installing $arg"
+          cd /tmp
           dpkg -i atom-amd64.deb
           apt -f install # just in case-icles
       ### Eclipse for Java Devs:
       elif [ "$arg" == "Eclipse" ]
         then
-          progressBar "Downloading $arg"
-          cd /tmp && wget 'http://demonlinux.com/download/packages/eclipse-jee-2019-06-R-linux-gtk-x86_64.tar.gz' --no-check-certificate
+          downloadFile 'http://demonlinux.com/download/packages/eclipse-jee-2019-06-R-linux-gtk-x86_64.tar.gz' $arg /tmp/eclipse-jee-2019-06-R-linux-gtk-x86_64.tar.gz
           progressBar "Installing $arg"
+          cd /tmp
           tar vxzf eclipse-jee-2019-06-R-linux-gtk-x86_64.tar.gz # crack it open
           mv /tmp/eclipse /opt/ # toss it into a shared space
           if [ $(grep /opt/eclipse ~/.bashrc|wc -l) -eq 0 ]
@@ -140,9 +138,8 @@ installApp () {
       ### Sublime text editor:
       elif [ "$arg" == "Sublime" ]
         then
-          progressBar "Downloading $arg"
-          cd /tmp/ && wget https://download.sublimetext.com/sublime_text_3_build_3207_x64.tar.bz2 --no-check-certificate
-          killBar
+          downloadFile "https://download.sublimetext.com/sublime_text_3_build_3207_x64.tar.bz2 --no-check-certificate" $arg "/tmp/sublime_text_3_build_3207_x64.tar.bz2"
+          cd /tmp
           progressBar "Installing $arg"
           tar vjxf sublime_text_3_build_3207_x64.tar.bz2
           mv sublime_text_3 /opt/sublime3
@@ -153,37 +150,31 @@ installApp () {
       ### SimpleNote
       elif [ "$arg" == "SimpleNote" ]
         then
-          progressBar "Downloading $arg"
-          cd /tmp && wget 'https://github.com/Automattic/simplenote-electron/releases/download/v1.7.0/Simplenote-linux-1.7.0-amd64.deb'
-          killBar
+          downloadFile 'https://github.com/Automattic/simplenote-electron/releases/download/v1.7.0/Simplenote-linux-1.7.0-amd64.deb' $arg "/tmp/Simplenote-linux-1.7.0-amd64.deb"
+          cd /tmp
           progressBar "Installing $arg"
           dpkg -i Simplenote-linux-1.7.0-amd64.deb
       ### KdenLive:
       elif [ "$arg" == "Kdenlive" ]
         then
-          progressBar "Downloading $arg"
           LOCALAREA=/usr/local/bin/kdenlive
-          cd /tmp && wget https://files.kde.org/kdenlive/release/Kdenlive-16.12.2-x86_64.AppImage --no-check-certificate -O $LOCALAREA
-          killBar
+          downloadFile 'https://files.kde.org/kdenlive/release/Kdenlive-16.12.2-x86_64.AppImage --no-check-certificate' $arg $LOCALAREA
+          cd /tmp
           progressBar "Installing $arg"
           apt install -y ffmpeg libav-tools dvdauthor genisoimage
           chmod +x $LOCALAREA
       ### ShotCut:
       elif [ "$arg" == "Shotcut" ]
         then
-          progressBar "Downloading $arg"
           LOCALAREA=/usr/local/bin/shotcut
-          wget https://github.com/mltframework/shotcut/releases/download/v19.08.16/Shotcut-190816.glibc2.14-x86_64.AppImage -O $LOCALAREA
-          killBar
+          downloadFile https://github.com/mltframework/shotcut/releases/download/v19.08.16/Shotcut-190816.glibc2.14-x86_64.AppImage $arg $LOCALAREA
           progressBar "Installing $arg"
           chmod +x $LOCALAREA
       ### Franz Messaging:
       elif [ "$arg" == "Franz" ]
         then
           LOCALAREA=/usr/local/bin/franz
-          progressBar "Downloading $arg"
-          wget https://github.com/meetfranz/franz/releases/download/v5.2.0/franz-5.2.0-x86_64.AppImage -O $LOCALAREA
-          killBar
+          downloadFile https://github.com/meetfranz/franz/releases/download/v5.2.0/franz-5.2.0-x86_64.AppImage $arg $LOCALAREA
           progressBar "Installing $arg"
           chmod +x $LOCALAREA
       ### Visual Studio:
@@ -198,9 +189,9 @@ installApp () {
       ### Stacer:
       elif [ "$arg" == "Stacer" ]
         then
-          progressBar "Downloading $arg"
-          cd /tmp && wget 'https://github.com/oguzhaninan/Stacer/releases/download/v1.1.0/stacer_1.1.0_amd64.deb' --no-check-certificate
-          killBar
+          LOCALAREA=/tmp/stacer_1.1.0_amd64.deb
+          downloadFile 'https://github.com/oguzhaninan/Stacer/releases/download/v1.1.0/stacer_1.1.0_amd64.deb --no-check-certificate' $arg $LOCALAREA
+          cd /tmp
           progressBar "Installing $arg"
           dpkg -i stacer_1.1.0_amd64.deb
           apt -f install -y
@@ -214,6 +205,7 @@ installApp () {
 
 # This may seem crazy, but it's for the UI/UX sake:
 for app in $(yad --width=600 --height=400 --title=$APPNAME\
+  --button=Exit:1 --button=Install:0\
  --list --checklist --column=Install --column="App Name" --column=Description \
  --image=$WINDOWIMAGE \
  --window-icon=$WINDOWICON \
