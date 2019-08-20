@@ -30,17 +30,20 @@ installApp (){
   arg=$1;
   arg=$(echo $arg|sed -r 's/TRUE\|([^|]+)\|.*/\1/');
   # Check if App is already installed (could have been pre-checked in the checklist)
+  printf "Looking for "$arg"\n";
   if [ $(which "${arg,,}"|wc -l) -ne 1 ] && [ $(which $arg|wc -l) -ne 1 ] # uses syntax sugar to lowercase the name
     then
-      ### Spotify
+      ### Spotify:
       if [ "$arg" == "Spotify" ]
         then # Install Spotify:
           progressBar "Installing $arg"
           apt install snapd
           snap install spotify
-          echo "export PATH=$PATH:/snap/bin:/snap/sbin" >> ~/.bashrc # update our PATH
-          #echo # DEBUG
-      ### Cutter
+          if [ $(grep /snap/bin ~/.bashrc|wc -l) -eq 0 ]
+            then
+              echo "export PATH=$PATH:/snap/bin:/snap/sbin" >> ~/.bashrc # update our PATH
+          fi
+      ### Cutter:
       elif [ "$arg" == "Cutter" ]
         then # Install Cutter:
           progressBar "Downloading $arg"
@@ -48,6 +51,7 @@ installApp (){
           killBar
           progressBar "Installing Cutter"
           chmod +x /usr/local/sbin/Cutter
+      ### Atom "IDE":
       elif [ "$arg" == "Atom" ]
         then
           progressBar "Downloading $arg"
@@ -56,6 +60,7 @@ installApp (){
           progressBar "Installing $arg"
           dpkg -i atom-amd64.deb
           apt -f install # just in case-icles
+      ### Eclipse for Java Devs:
       elif [ "$arg" == "Eclipse" ]
         then
           progressBar "Downloading $arg"
@@ -63,13 +68,18 @@ installApp (){
           progressBar "Installing $arg"
           tar vxzf eclipse-jee-2019-06-R-linux-gtk-x86_64.tar.gz # crack it open
           mv /tmp/eclipse /opt/ # toss it into a shared space
-          echo "export PATH=$PATH:/opt/eclipse/" >> ~/.bashrc # update the path
+          if [ $(grep /opt/eclipse ~/.bashrc|wc -l) -eq 0 ]
+            then # add it to the PATH
+              echo "export PATH=$PATH:/opt/eclipse" >> ~/.bashrc # update the path
+          fi
           bash -c # new shell
+      ### VLC Media Player:
       elif [ "$arg" == "VLC Media Player" ]
         then
           progressBar "Installing $arg"
           apt install vlc -y
           sed -i 's/geteuid/getppid/' /usr/bin/vlc
+      ### Brave little web browser:
       elif [ "$arg" == "Brave" ]
         then
           progressBar "Installing $arg"
@@ -85,10 +95,11 @@ installApp (){
           mv /usr/bin/brave-browser-stable /usr/bin/brave-browser-script
           echo "brave-browser-script --no-sandbox" > /usr/bin/brave-browser-stable
           chmod +x /usr/bin/brave-browser-stable
+      ### Googlefornia's shitty browser:
       elif [ "$arg" == "Chrome" ]
         then
           progressBar "Downloading $arg"
-          cd /tmp #&& wget http://demonlinux.com/download/packages/google-chrome-stable_current_amd64.deb
+          cd /tmp && wget http://demonlinux.com/download/packages/google-chrome-stable_current_amd64.deb
           killBar
           progressBar "Installing $arg"
           dpkg -i google-chrome-stable_current_amd64.deb
@@ -100,10 +111,19 @@ installApp (){
           mv /usr/bin/google-chrome-stable /usr/bin/google-chrome-script
           echo "google-chrome --no-sandbox" > /usr/bin/google-chrome-stable
           chmod +x /usr/bin/google-chrome-stable
-
+      ### Sublime text editor:
       elif [ "$arg" == "Sublime" ]
         then
+          progressBar "Downloading $arg"
+          cd /tmp/ && wget https://download.sublimetext.com/sublime_text_3_build_3207_x64.tar.bz2 --no-check-certificate
+          killBar
           progressBar "Installing $arg"
+          tar vjxf sublime_text_3_build_3207_x64.tar.bz2
+          mv sublime_text_3 /opt/sublime3
+          if [ $(grep /opt/sublime3 ~/.bashrc|wc -l) -eq 0 ]
+            then # create the PATH entry:
+              echo PATH=$PATH:/opt/sublime3 >> ~/.bashrc
+          fi
       fi
       sleep 1 # DEBUG
       killBar
@@ -122,7 +142,7 @@ $(if [[ $(which atom|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; f
 $(if [[ $(which eclipse|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Eclipse" "Eclipse IDE for Java" \
 $(if [[ $(which vlc|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "VLC" "Multimedia player and framework" \
 $(if [[ $(which brave-browser|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Brave-Browser" "Much more than a web browser" \
-$(if [[ $(which google-chrome|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Chrome" "Google's web browser" \
+$(if [[ $(which google-chrome|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Google-Chrome" "Google's web browser" \
 $(if [[ $(which sublime|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Sublime" "Sublime text editor" \
 $(if [[ $(which clementine|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "Clementine" "Modern music player" \
 $(if [[ $(which simplenote|wc -l) -eq 1 ]]; then printf "true"; else printf "false"; fi) "SimpleNote" "The simplest way to keep notes" \
