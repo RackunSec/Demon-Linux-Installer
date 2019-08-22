@@ -69,7 +69,7 @@ updateMe () {
  else
   cd /appdev/Demon-Linux-Installer
   git pull
- fi
+ fi # does the icons directory exist?
  if [ ! -d /usr/share/demon/images/icons ]
   then
    mkdir -p /usr/share/demon/images/icons
