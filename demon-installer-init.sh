@@ -15,7 +15,10 @@ updateMe () {
   then
    mkdir -p /usr/share/demon/images/icons
  fi
+ # copy the new init file:
  cp /appdev/Demon-Linux-Installer/demon-installer.sh /usr/local/sbin/demon-installer.sh
+ # copy the new workflow file:
+ cp /appdev/Demon-Linux-Installer/demon-installer-workflow.sh /usr/local/sbin/demon-installer-workflow.sh
  cp /appdev/Demon-Linux-Installer/icons/* /usr/share/demon/images/icons/
  printf "[!] Updated to the latest version. \n"
 }
