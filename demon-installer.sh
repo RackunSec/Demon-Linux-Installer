@@ -134,19 +134,19 @@ yad --text="$SPANFONT Let's select a disk to install $OS to and start up <b>$PAR
 OFS=$IFS # Field Separator for loops.
 IFS=$"\n" # change to newline from \s and we will revert later.
 # ONLY SHOW PARTITIONS:
-DRIVES=$(cat /proc/partitions | grep sd | egrep -v 'sd[a-z][0-9]')
+#DRIVES=$(cat /proc/partitions | grep sd | egrep -v 'sd[a-z][0-9]')
+DRIVES=$(cat /proc/partitions | egrep -E 'sd.$')
 
 #   8        0   20971520 sda
 #   8        1   19456000 sda1
 #   8        2    1514496 sda2
 
-for i in $DRIVES; do
- partdrive=$(echo $i|awk '{print $4}')
- partdrivesize="$(echo $i| awk '{print $3}')"
+for i in $DRIVES; do 
+ partdrive=$(echo $i|awk '{print $4}'); 
+ partdrivesize=$(echo $i|awk '{print $3}');
  partdrivemenu="$partdrive $partdrivesize"
- printf "PARTDRIVE: $partdrive, PARTDRIVESIZE: $partdrivesize, PARTDRIVEMENU: $partdrivemenu\n";
+ printf "PARTDRIVE: $partdrive, PARTDRIVESIZE: $partdrivesize, PARTDRIVEMENU: $partdrivemenu\n"; 
 done
-IFS=$OFS # reest the field separator
 
 PARTDRIVE=""
 while [ "$PARTDRIVE" = "" ]
