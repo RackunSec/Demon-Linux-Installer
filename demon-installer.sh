@@ -147,12 +147,13 @@ for i in $DRIVES; do
  partdrivemenu="$partdrive $partdrivesize"
  printf "PARTDRIVE: $partdrive, PARTDRIVESIZE: $partdrivesize, PARTDRIVEMENU: $partdrivemenu\n"; 
 done
+IFS=$OFS
 
-PARTDRIVE=""
-while [ "$PARTDRIVE" = "" ]
-do
+#PARTDRIVE=""
+#while [ "$PARTDRIVE" = "" ]
+#do
  PARTDRIVE=$($DIALOGMENU $TITLE"$TITLETEXT" $MENU  $TEXT"Please select a drive to partition.   \n" Exit "Quit the installer." $partdrivemenu)
-done
+#done
 PARTDRIVE=$(echo $PARTDRIVE |sed -re 's/\|.*//')
 if [ "$PARTDRIVE" = "Exit" ]; then
  quit;
@@ -161,7 +162,7 @@ printf "[!] Part: $PARTITIONPROG /dev/$PARTDRIVE\n"
 $PARTITIONPROG /dev/$PARTDRIVE
 
 # Choose the swap partition:
-TARGETSWAP=$(fdisk -l | awk '/swap/ {sub(/\/[^/]+\//,"",$1); print $1}')
+TARGETSWAP=$(fdisk -l | awk '/swap/ {sub(/\/[^\/]+\//,"",$1); print $1}')
 for i in $TARGETSWAP; do
  swappart="$i"
  swappartsize=$(awk '/sda2/ { print $3 }' /proc/partitions)
