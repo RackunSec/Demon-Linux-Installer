@@ -70,7 +70,13 @@ updateMe () {
   cd /appdev/Demon-Linux-Installer
   git pull
  fi
+ if [ ! -d /usr/share/demon/images/icons ]
+  then
+   mkdir -p /usr/share/demon/images/icons
+ fi
  cp /appdev/Demon-Linux-Installer/demon-installer.sh /usr/local/sbin/demon-installer.sh
+ cp /appdev/Demon-Linux-Installer/icons/* /usr/share/demon/images/icons/
+ printf "[!] Updated to the latest version. \n"
 }
 
 ### Workflow:
