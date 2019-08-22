@@ -10,36 +10,34 @@ if [ "$(whoami)" != "root" ]; then
 fi
 
 ### CONSTANTS:
-#####=================
-#DIALOG=$(which dialog)
-KERNEL=-amd64 # update this. Do not put the "linux-image-" part.
+# OS Specific:
+export KERNEL=-amd64 # update this. Do not put the "linux-image-" part.
+export OS="Demon Linux"
 export WORKINGDIR=/mnt/demon
-TITLE="--title "
-ENTRY="--inputbox "
-MENU="--menu"
-YESNO="--yesno "
-MSGBOX="--msgbox "
-PASSWORD="--passwordbox "
-TITLETEXT="Demon Linux - Live Installer"
-WINDOWICON="/usr/share/demon/images/icons/demon-64-white.png"
-WINDOWIMAGE="/usr/share/demon/images/icons/demon-64-padded-white.png"
-DIALOGMENU="$(which yad) --window-icon=$WINDOWICON --width=500 --height=200 --center"
-DIALOG="$(which yad) --window-icon=$WINDOWICON --center"
-TITLE="--always-print-result --dialog-sep --image=$WINDOWIMAGE --title="
-TEXT="--text="
-ENTRY="--entry "
-ENTRYTEXT="--entry-text "
-MENU="--list --column=Pick --column=Info"
-YESNO=" --button=Yes:0 --button=No:1 "
-MSGBOX=" --button=Ok:0 "
-PASSWORD="--entry --hide-text "
-TITLETEXT="Demon Linux - HDD Installation Tool"
-PARTITIONPROG="gparted"
-SPANFONT="<span font='Ubuntu Condensed 11'>" # Damn, this is a sexy font.
-OS="Demon Linux"
-EXCLUDEDIRS="lib/live,usr/lib/live,live,cdrom,mnt,proc,run,sys,media,appdev,demon-dev,tmp"
-### Functions:
-#####=================
+export TITLETEXT="Demon Linux - Live Installer"
+export WINDOWICON="/usr/share/demon/images/icons/demon-64-white.png"
+export WINDOWIMAGE="/usr/share/demon/images/icons/demon-64-padded-white.png"
+# App specific:
+export TITLE="--title "
+export ENTRY="--inputbox "
+export MENU="--menu"
+export YESNO="--yesno "
+export MSGBOX="--msgbox "
+export PASSWORD="--passwordbox "
+export DIALOGMENU="$(which yad) --window-icon=$WINDOWICON --width=500 --height=200 --center"
+export DIALOG="$(which yad) --window-icon=$WINDOWICON --center"
+export TITLE="--always-print-result --dialog-sep --image=$WINDOWIMAGE --title="
+export TEXT="--text="
+export ENTRY="--entry "
+export ENTRYTEXT="--entry-text "
+export MENU="--list --column=Pick --column=Info"
+export YESNO=" --button=Yes:0 --button=No:1 "
+export MSGBOX=" --button=Ok:0 "
+export PASSWORD="--entry --hide-text "
+export TITLETEXT="Demon Linux - HDD Installation Tool"
+export PARTITIONPROG="gparted"
+export SPANFONT="<span font='Ubuntu Condensed 11'>" # Damn, this is a sexy font.
+export EXCLUDEDIRS="lib/live,usr/lib/live,live,cdrom,mnt,proc,run,sys,media,appdev,demon-dev,tmp"
 
 ### This function forks the loading bar message box using "tail":
 progressBar () {
@@ -80,11 +78,7 @@ updateMe () {
  printf "[!] Updated to the latest version. \n"
 }
 
-### Workflow:
-#####=================
-## Start the Installation Process Dialogs:
-
-# Ensure insternet connection
+### Ensure insternet connection
 progressBar "Creating an active internet connection.\n" &
 /etc/init.d/network-manager start
 dhclient -v
@@ -96,7 +90,7 @@ if [ "$HTTPTEST" != "200" ];
 fi
 killBar
 
-### Get the latest version of me
+### Get the latest version of me :) self-maintaining
 progressBar "Updating this installer. Please wait ... " &
 updateMe
 killBar
@@ -121,40 +115,36 @@ elif [ $ans = 2 ];then # Awe, snacks!
  $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT Firefox is now going to start and direct you to the video tutorial.  \nPlease wait.</span>"
  firefox-esr 'https://demonlinux.com/tutorials.php' &
 fi
-# Create time adjustment file:
+
+### Create time adjustment file:
 echo "0.0 0 0.0" > /etc/adjtime
 echo "0" >> /etc/adjtime
 echo "LOCAL" >> /etc/adjtime
 
-# Fix for gparted being inhibited by udisks-daemon:
+### Fix for gparted being inhibited by udisks-daemon:
 killall -KILL udisks-daemon 2>/dev/null
 
+### Choose the drive to install to:
 yad --text="$SPANFONT Let's select a disk to install $OS to and start up <b>$PARTITIONPROG</b>.\nIn GParted create one Root partition labeled <b>/</b> with the   \nFS format of your choice and one Linux-Swap partition labeled <b>swap</b>.   \nPay attention to the drive names in the \"Partition\" column,\n\n E.g.:<b>sda1</b>, <b>sda2</b>.\n\nWhen done with $PARTITIONPROG, hit the <b>X</b> button and this installation will continue.</span>   " --center --window-icon=$WINDOWICON --no-wrap --title="$OS Installer" --image=$WINDOWIMAGE --fixed
-
-# Choose the drive to install to:
+# This is important to chnage back, so, OFS is the original.
 OFS=$IFS # Field Separator for loops.
 IFS=$"\n" # change to newline from \s and we will revert later.
 # ONLY SHOW PARTITIONS:
 #DRIVES=$(cat /proc/partitions | grep sd | egrep -v 'sd[a-z][0-9]')
 DRIVES=$(cat /proc/partitions | egrep -E 'sd.$')
-
+# E.g.:
 #   8        0   20971520 sda
 #   8        1   19456000 sda1
 #   8        2    1514496 sda2
-
 for i in $DRIVES; do 
  partdrive=$(echo $i|awk '{print $4}'); 
  partdrivesize=$(echo $i|awk '{print $3}');
  partdrivemenu="$partdrive $partdrivesize"
  printf "PARTDRIVE: $partdrive, PARTDRIVESIZE: $partdrivesize, PARTDRIVEMENU: $partdrivemenu\n"; 
 done
+# return the field separator. If not, this could cause undefinied behavior or crashes:
 IFS=$OFS
-
-#PARTDRIVE=""
-#while [ "$PARTDRIVE" = "" ]
-#do
- PARTDRIVE=$($DIALOGMENU $TITLE"$TITLETEXT" $MENU  $TEXT"Please select a drive to partition.   \n" Exit "Quit the installer." $partdrivemenu)
-#done
+PARTDRIVE=$($DIALOGMENU $TITLE"$TITLETEXT" $MENU  $TEXT"Please select a drive to partition.   \n" Exit "Quit the installer." $partdrivemenu)
 PARTDRIVE=$(echo $PARTDRIVE |sed -re 's/\|.*//')
 if [ "$PARTDRIVE" = "Exit" ]; then
  quit;
@@ -162,7 +152,7 @@ fi
 printf "[!] Part: $PARTITIONPROG /dev/$PARTDRIVE\n"
 $PARTITIONPROG /dev/$PARTDRIVE
 
-# Choose the swap partition:
+### Choose the swap partition:
 TARGETSWAP=$(fdisk -l | awk '/swap/ {sub(/\/[^\/]+\//,"",$1); print $1}')
 for i in $TARGETSWAP; do
  swappart="$i"
@@ -179,9 +169,7 @@ if [ "$SWAP" = "Exit" ]; then
  quit;
 fi
 
-### Choosing the Install Partition:
-#####==================
-
+### Choosing the Install (/) Partition:
 OFS=$IFS # Field Separator for loops.
 IFS="\n" # chnage to newline from \s and we will revert later.
 PARTINST=$(cat /proc/partitions | egrep "${partdrive}[0-9]+" | grep -v $SWAP);
@@ -224,11 +212,10 @@ HOMEPART="root" # install the /home into the /
 HFSTYPE=""
 HFSTYPE=`echo $HFSTYPE | cut -d "|" -f 1`
 
-# Let them choose a hostname:
-TARGETHOSTNAME=`$DIALOG $TITLE"$TITLETEXT" $ENTRY $TEXT"$SPANFONT Please enter the <b>hostname</b> for this newly installed system.</span>   "`
+### Get the chosen hostname of the new system:
+TARGETHOSTNAME=$($DIALOG $TITLE"$TITLETEXT" $ENTRY $TEXT"$SPANFONT Please enter the <b>hostname</b> for this newly installed system.</span>   ")
 
 ### Timezone Setting
-#####==================
 $DIALOG $TITLE"$TITLETEXT" $YESNO $TEXT"$SPANFONT Is your system clock set to your current local time?   \n\nAnswering no will indicate it is set to UTC</span>"
 if [ $? = 0 ]; then
 if [ "$(grep "UTC" /etc/adjtime)" != "" ]; then
@@ -256,13 +243,6 @@ fi
 echo "$ZONESINFO" > /etc/timezone
 cp /usr/share/zoneinfo/$ZONESINFO /etc/localtime
 
-if [ "$HOMEPART" != "root" ]; then
- HOMETEXT=", $HOMEPART will be formatted $HFSTYPE for /home "
-fi
-
-if [ "$HFSTYPE" = "noformat" ]; then
- HOMETEXT=", $HOMEPART will not be formatted but used for \n/home "
-fi
 ## Confirmation:
 $DIALOG $TITLE"$TITLETEXT" $YESNO $TEXT"$SPANFONT <b>Please <u>verify</u> that this information is correct.\
 </b>\n\nYour $OS system will be installed on an<b> $FSTYPE</b> formatted <b>$TARGETPART</b> partition<b>\
@@ -291,28 +271,8 @@ sleep 1
 tune2fs -c 0 -i 0 /dev/$TARGETPART
 rm -rf "$WORKINGDIR/lost+found"
 killBar;
-if [ "$HOMEPART" != "root" ]; then
- if [ "$HFSTYPE" != "noformat" ]; then
- progressBar "Formatting $HOME now. " &
- if [ "`mount | grep $HOMEPART`" ]; then
-  umount /dev/$HOMEPART
- fi
- mke2fs -F -t $HFSTYPE /dev/$HOMEPART
- fi
- mkdir -p $WORKINGDIR/home
- mount /dev/$HOMEPART $WORKINGDIR/home -o rw
- tune2fs -c 0 -i 0 /dev/$HOMEPART
- rm -rf "$WORKINGDIR/home/lost+found"
- sleep 1
- # Get FS type for home partition in case the user chose not to format
- if [ "$HFSTYPE" = "noformat" ]; then
-  HFSTYPE=`mount | grep "/dev/$HOMEPART" | awk '{print $5}'`
- fi
- killBar;
-fi
 
-### Copy Files to HDD:
-#####=================
+### RSYNC the OS/Live files to HDD:
 TARGETCDROM="/dev/cdrom" # For FSTAB
 killBar;
 progressBar "Copying the files to <b>/dev/$TARGETPART</b>.   \nThis <u>will</u> take a long time - ($(df -h 2>/dev/null | awk '$1 ~ /overlay|sr0|loop/ {gsub(/[.,]/,"",$2); gsub(/G/,"00",$2); gsub(/M/,"",$2); size+=$2}END{print size}')MB).   " &
@@ -346,7 +306,6 @@ proc /proc proc defaults 0 0
 FOO
 
 ### Clean up Fresh Install:
-#####=================
 progressBar "Fixing initram-fs tools. " &
 # get rid of the "live" initramfs:
 rm $WORKINGDIR/usr/sbin/update-initramfs
@@ -425,5 +384,3 @@ if [ $ans = 0 ]; then
 elif [ $ans = 1 ];then # Awe, snacks!
  $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT Thank you for choosing <b>WeakNet Laboratories!</b>   \n\n~Douglas Berdeaux\nWeakNetLabs@Gmail.com</span>" --image=$WINDOWIMAGE --window-image=$WINDOWIMAGE;
 fi
-# clean up:
-rm /root/Desktop/Install\ Me.desktop
