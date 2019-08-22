@@ -255,7 +255,7 @@ TARGETCDROM="/dev/cdrom" # For FSTAB
 killBar;
 progressBar "Copying the files to <b>/dev/$TARGETPART</b>.   \nThis <u>will</u> take a long time - ($(df -h 2>/dev/null | awk '$1 ~ /overlay|sr0|loop/ {gsub(/[.,]/,"",$2); gsub(/G/,"00",$2); gsub(/M/,"",$2); size+=$2}END{print size}')MB).   " &
 #printf "[!] RSYNC: rsync -a / $WORKINGDIR --ignore-existing --exclude=/{$EXCLUDEDIRS}\n";
-printf "[!] rsync -a / $WORKINGDIR --ignore-existing --exclude=/{$EXCLUDEDIRS}";
+printf "[!] rsync -a / $WORKINGDIR --ignore-existing --exclude=/{${EXCLUDEDIRS}}";
 exit;
 
 rsync -a / $WORKINGDIR --ignore-existing --exclude=/{$EXCLUDEDIRS}
