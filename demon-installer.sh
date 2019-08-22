@@ -24,5 +24,5 @@ updateMe () {
 }
 # Step 1: UPDATE
 updateMe
-# Step 2: Run
-/usr/local/sbin/demon-installer.sh
+# Step 2: Run the Workflow portion
+/usr/local/sbin/demon-installer-workflow.sh
