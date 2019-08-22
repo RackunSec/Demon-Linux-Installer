@@ -12,7 +12,7 @@ fi
 ### CONSTANTS:
 #####=================
 #DIALOG=$(which dialog)
-KERNEL=4.9.0-7-amd64 # update this. Do not put the "linux-image-" part.
+KERNEL=-amd64 # update this. Do not put the "linux-image-" part.
 export WORKINGDIR=/mnt/demon
 TITLE="--title "
 ENTRY="--inputbox "
