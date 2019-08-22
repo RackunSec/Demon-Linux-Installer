@@ -60,10 +60,11 @@ quit (){
 ### Update the installer EACH TIME RAN
 updateMe () {
  if [ ! -d /appdev/Demon-Linux-Installer ]
-  mkdir -p /appdev/
-  cd /appdev
-  git clone https://github.com/weaknetlabs/Demon-Linux-Installer/
-  rm /usr/local/sbin/demon-installer.sh
+  then
+   mkdir -p /appdev/
+   cd /appdev
+   git clone https://github.com/weaknetlabs/Demon-Linux-Installer/
+   rm /usr/local/sbin/demon-installer.sh # get rid of old version
  else
   cd /appdev/Demon-Linux-Installer
   git pull
