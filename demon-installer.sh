@@ -21,10 +21,11 @@ YESNO="--yesno "
 MSGBOX="--msgbox "
 PASSWORD="--passwordbox "
 TITLETEXT="Demon Linux - Live Installer"
-WINDOWICON="/usr/share/demon/images/icons/64-icon.png"
+WINDOWICON="/usr/share/demon/images/icons/demon-64-white.png"
+WINDOWIMAGE="/usr/share/demon/images/icons/demon-64-padded-white.png"
 DIALOGMENU="$(which yad) --window-icon=$WINDOWICON --width=500 --height=200 --center"
 DIALOG="$(which yad) --window-icon=$WINDOWICON --center"
-TITLE="--always-print-result --dialog-sep --image=$WINDOWICON --title="
+TITLE="--always-print-result --dialog-sep --image=$WINDOWIMAGE --title="
 TEXT="--text="
 ENTRY="--entry "
 ENTRYTEXT="--entry-text "
@@ -43,7 +44,7 @@ OS="Demon Linux"
 progressBar () {
  tail -f /etc/issue |yad --progress --pulsate --no-buttons --auto-close \
   --text="$SPANFONT $1 </span>" --width=350 --height=17 --center --title=$TITLETEXT \
-  --window-icon=$WINDOWICON --percentage=13 --progress-text="Please Wait..." --image=$WINDOWICON
+  --window-icon=$WINDOWICON --percentage=13 --progress-text="Please Wait..." --image=$WINDOWIMAGE
 }
 
 ### This function stops the loading bar message box by killing tail:
@@ -406,15 +407,15 @@ umount $WORKINGDIR
 sleep 1
 killBar;
 # TODO Make sure by checking files/dirs before saying it was a success!
-$DIALOG $TITLE"$TITLETEXT" --button=Yes:0 --button=No:1 --button=Help:2 --text="$SPANFONT $OS has been\nsuccessfully installed on your system, $TARGETHOSTNAME.   \n\nWould you like to reboot now and test it out?  </span>" --image=$WINDOWICON --window-image=$WINDOWICON;
+$DIALOG $TITLE"$TITLETEXT" --button=Yes:0 --button=No:1 --button=Help:2 --text="$SPANFONT $OS has been\nsuccessfully installed on your system, $TARGETHOSTNAME.   \n\nWould you like to reboot now and test it out?  </span>" --image=$WINDOWIMAGE --window-image=$WINDOWIMAGE;
 ans=$?
 if [ $ans = 0 ]; then
- $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT Thank you for choosing <b>WeakNet Laboratories!</b>   \n\n~Douglas Berdeaux\nWeakNetLabs@Gmail.com</span>" --image=$WINDOWICON --window-image=$WINDOWICON;
+ $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT Thank you for choosing <b>WeakNet Laboratories!</b>   \n\n~Douglas Berdeaux\nWeakNetLabs@Gmail.com</span>" --image=$WINDOWIMAGE --window-image=$WINDOWIMAGE;
  sleep 5; # so that you can see.
  reboot;
  exit 0
 elif [ $ans = 1 ];then # Awe, snacks!
- $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT Thank you for choosing <b>WeakNet Laboratories!</b>   \n\n~Douglas Berdeaux\nWeakNetLabs@Gmail.com</span>" --image=$WINDOWICON --window-image=$WINDOWICON;
+ $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT Thank you for choosing <b>WeakNet Laboratories!</b>   \n\n~Douglas Berdeaux\nWeakNetLabs@Gmail.com</span>" --image=$WINDOWIMAGE --window-image=$WINDOWIMAGE;
 fi
 # clean up:
 rm /root/Desktop/Install\ Me.desktop
