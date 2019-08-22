@@ -128,7 +128,7 @@ echo "LOCAL" >> /etc/adjtime
 # Fix for gparted being inhibited by udisks-daemon:
 killall -KILL udisks-daemon 2>/dev/null
 
-yad --text="$SPANFONT Let's select a disk to install $OS to and start up <b>$PARTITIONPROG</b>.\nIn GParted create one Root partition labeled <b>/</b> with the   \nFS format of your choice and one Linux-Swap partition labeled <b>swap</b>.   \nPay attention to the drive names in the \"Partition\" column,\n\n E.g.:<b>sda1</b>, <b>sda2</b>.\n\nWhen done with $PARTITIONPROG, hit the <b>X</b> button and this installation will continue.</span>   " --center --window-icon=$WINDOWICON --no-wrap --title="$OS Installer" --image=$WINDOWICON --fixed
+yad --text="$SPANFONT Let's select a disk to install $OS to and start up <b>$PARTITIONPROG</b>.\nIn GParted create one Root partition labeled <b>/</b> with the   \nFS format of your choice and one Linux-Swap partition labeled <b>swap</b>.   \nPay attention to the drive names in the \"Partition\" column,\n\n E.g.:<b>sda1</b>, <b>sda2</b>.\n\nWhen done with $PARTITIONPROG, hit the <b>X</b> button and this installation will continue.</span>   " --center --window-icon=$WINDOWICON --no-wrap --title="$OS Installer" --image=$WINDOWIMAGE --fixed
 
 # Choose the drive to install to:
 OFS=$IFS # Field Separator for loops.
