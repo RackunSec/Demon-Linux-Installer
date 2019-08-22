@@ -38,20 +38,37 @@ SPANFONT="<span font='Ubuntu Condensed 11'>" # Damn, this is a sexy font.
 OS="Demon Linux"
 ### Functions:
 #####=================
-# This function forks the loading bar message box using "tail":
+
+### This function forks the loading bar message box using "tail":
 progressBar () {
  tail -f /etc/issue |yad --progress --pulsate --no-buttons --auto-close \
   --text="$SPANFONT $1 </span>" --width=350 --height=17 --center --title=$TITLETEXT \
   --window-icon=$WINDOWICON --percentage=13 --progress-text="Please Wait..." --image=$WINDOWICON
 }
-# This function stops the loading bar message box by killing tail:
+
+### This function stops the loading bar message box by killing tail:
 killBar () { # tail was a really good idea here, Tony :)
  killall -KILL tail 2>/dev/null
 }
-# This function quits the installer:
+
+### This function quits the installer:
 quit (){
   $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT \nQuitting the installer now.   </span>"
   exit 1
+}
+
+### Update the installer EACH TIME RAN
+updateMe () {
+ if [ ! -d /appdev/Demon-Linux-Installer ]
+  mkdir -p /appdev/
+  cd /appdev
+  git clone https://github.com/weaknetlabs/Demon-Linux-Installer/
+  rm /usr/local/sbin/demon-installer.sh
+ else
+  cd /appdev/Demon-Linux-Installer
+  git pull
+ fi
+ cp /appdev/Demon-Linux-Installer/demon-installer.sh /usr/local/sbin/demon-installer.sh
 }
 
 ### Workflow:
@@ -70,19 +87,18 @@ if [ "$HTTPTEST" != "200" ];
 fi
 killBar
 
-# Perform update for icon:
-progressBar "Updating Demon Image ..." &
-if [ ! -d "/usr/share/demon/images/icons" ];
- then
-  mkdir -p /usr/share/demon/images/icons
-fi
-wget https://demonlinux.com/images/icons/64-icon.png -O /usr/share/demon/images/icons/thedemon-small.png
-killBar;
+### Get the latest version of me
+progressBar "Updating this installer. Please wait ... " &
+updateMe
+killBar
+
+### Update YAD
 progressBar "Updating respositories and YAD ..." &
 apt update
 apt install yad -y
 killBar;
 
+### Run the workflow:
 $DIALOG $TITLE"$TITLETEXT" --button=Yes:0 --button=No:1 --button=Help:2 \
  --text="${SPANFONT}\nThis is the <b>$OS</b> Disk Installation Utility.\nIt is <b>HIGHLY RECOMMENDED</b> that <b>$OS</b>\n\
 is installed in a <u>virtualized environment</u> to ensure the best,\nuniform experience for all users.\n\nWeakNet Labs cannot \
