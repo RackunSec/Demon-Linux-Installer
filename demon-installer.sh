@@ -9,7 +9,7 @@ updateMe () {
    rm /usr/local/sbin/demon-installer.sh # get rid of old version
  else
   cd /appdev/Demon-Linux-Installer
-  git pull
+  #git pull
  fi # does the icons directory exist?
  if [ ! -d /usr/share/demon/images/icons ]
   then

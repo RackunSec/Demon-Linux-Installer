@@ -11,7 +11,7 @@ fi
 
 ### CONSTANTS:
 # OS Specific:
-export KERNEL=-amd64 # update this. Do not put the "linux-image-" part.
+export KERNEL=linux-image-amd64 # update this. Do not put the "linux-image-" part.
 export OS="Demon Linux"
 export WORKINGDIR=/mnt/demon
 export TITLETEXT="Demon Linux - Live Installer"
@@ -113,11 +113,11 @@ DRIVES=$(cat /proc/partitions | egrep -E 'sd.$')
 #   8        0   20971520 sda
 #   8        1   19456000 sda1
 #   8        2    1514496 sda2
-for i in $DRIVES; do 
- partdrive=$(echo $i|awk '{print $4}'); 
+for i in $DRIVES; do
+ partdrive=$(echo $i|awk '{print $4}');
  partdrivesize=$(echo $i|awk '{print $3}');
  partdrivemenu="$partdrive $partdrivesize"
- printf "PARTDRIVE: $partdrive, PARTDRIVESIZE: $partdrivesize, PARTDRIVEMENU: $partdrivemenu\n"; 
+ printf "PARTDRIVE: $partdrive, PARTDRIVESIZE: $partdrivesize, PARTDRIVEMENU: $partdrivemenu\n";
 done
 # return the field separator. If not, this could cause undefinied behavior or crashes:
 IFS=$OFS
@@ -229,7 +229,6 @@ if [ $? != 0 ]; then
 fi
 
 ### HDD Partition and Setup:
-#####==================
 progressBar "Setting up SWAP now. " &
 sleep 1 # because of the "&" above
 mkswap /dev/$SWAP
@@ -255,22 +254,30 @@ killBar;
 progressBar "Copying the files to <b>/dev/$TARGETPART</b>.   \nThis <u>will</u> take a long time - ($(df -h 2>/dev/null | awk '$1 ~ /overlay|sr0|loop/ {gsub(/[.,]/,"",$2); gsub(/G/,"00",$2); gsub(/M/,"",$2); size+=$2}END{print size}')MB).   " &
 
 rsync -a / $WORKINGDIR --ignore-existing --exclude=/{lib/live,usr/lib/live,live,cdrom,mnt,proc,run,sys,media,appdev,demon-dev,tmp}
-mkdir -p $WORKINGDIR/{proc,mnt,run,sys,media/cdrom}
+printf "[log] RSYNC Complete, making new directories ... \n"
+mkdir -p $WORKINGDIR/{proc,mnt,run,sys,media/cdrom,tmp}
+chmod 7777 $WORKINGDIR/tmp # This is required for APT later ...
 # Remove live hooks:
+printf "[log] Removing initRAMFS from live ... \n"
 rm $WORKINGDIR/usr/share/initramfs-tools/hooks/live
+printf "[log] Removing /etc/live ... \n"
 rm -rf $WORKINGDIR/etc/live # WTF is Debian doing these days? Why so convoluted?
 killBar;
 
+printf "[log] Mounting /proc, /dev/, /sys, /run\n"
+printf "[log] WORKINGDIR currently mounted as: $(mount | grep $WORKINGDIR)"
 progressBar "Performing post-install steps now. " &
 #prepare the chroot environment for some post install changes
 mount -o bind /proc $WORKINGDIR/proc
 mount -o bind /dev $WORKINGDIR/dev
+mount -o bind /dev/pts $WORKINGDIR/dev/pts
 mount -o bind /sys $WORKINGDIR/sys
 mount -o bind /run $WORKINGDIR/run
 rm -f $WORKINGDIR/etc/fstab
 rm -f $WORKINGDIR/etc/profile.d/zz-live.sh
 
 #create the new fstab for the chrooted env:
+printf "[log] Making FSTAB entries on the new FS ... \n"
 cat > $WORKINGDIR/etc/fstab <<FOO
 # /etc/fstab: static file system information.
 #
@@ -284,12 +291,14 @@ proc /proc proc defaults 0 0
 FOO
 
 ### Clean up Fresh Install:
+printf "[log] Fixing initRAMFS tools ... \n"
 progressBar "Fixing initram-fs tools. " &
 # get rid of the "live" initramfs:
 rm $WORKINGDIR/usr/sbin/update-initramfs
 cp $WORKINGDIR/usr/sbin/update-initramfs.orig.initramfs-tools $WORKINGDIR/usr/sbin/update-initramfs
 killBar;
 
+printf "[log] Removing some live-OS diversions. \n"
 progressBar "Removing some live-OS diversions. " &
 rm -rf $WORKINGDIR/usr/lib/update-notifier/apt-check
 rm -rf $WORKINGDIR/usr/sbin/anacron
@@ -297,24 +306,26 @@ killBar;
 # Run  the GRUB2 installer in a new Terminal window:
 progressBar "Installing <b>GRUB2</b> and the <b>kernel</b> on your new system." &
 # This is done this way because of the captive Grub2 apt-get installation
+printf "[log] Updating APT in the chrooted $WORKINGDIR ... \n"
 chroot $WORKINGDIR apt update
-cat > $WORKINGDIR/tmp/grub-install.sh << GRUB2
+printf "[log] Installing GRUB in the chroot, $WORKINGDIR\n"
+cat > $WORKINGDIR/tmp/grub-install.sh << GRUB
 #!/bin/bash
 DEBIAN_FRONTEND=noninteractive apt-get -y -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" install grub2 grub-pc grub-common;
-GRUB2
+GRUB
 chroot $WORKINGDIR chmod +x /tmp/grub-install.sh
 chroot $WORKINGDIR /tmp/grub-install.sh
-printf "[!] Installing Grub to /dev/$PARTDRIVE\n";
+printf "[log] Installing Grub to /dev/$PARTDRIVE\n";
 chroot $WORKINGDIR grub-install --root-directory=/ --no-floppy /dev/$PARTDRIVE;
 # I know that this is very specific as to what OS/kernel to install, but I am still working this aht:
-chroot $WORKINGDIR apt -y -V install linux-image-$KERNEL --reinstall # this will generate a new /boot/vmlinuz, hopefully.
+chroot $WORKINGDIR apt -y -V install $KERNEL --reinstall # this will generate a new /boot/vmlinuz, hopefully.
 chroot $WORKINGDIR update-initramfs -c -k $KERNEL # create a new symlink for /initrd
 chroot $WORKINGDIR update-grub # required to make grub.cfg!
 killBar;
-
 #$DIALOG $TITLE"$TITLETEXT" --button="I have completed Installing GRUB2":0 \
 # --text="$SPANFONT GRUB2 needs to be installed on the new system.   Follow the directions in the newly opened terminal and hit the button below <u><b>ONLY</b></u> when completed.\n</span>  ";
 # Set up the chosen hostname: (Done last to prevent apt-get from failing to resolve hosts)
+printf "[log] Setting up hostname in the chrooted environment ... \n"
 progressBar "Setting up <b>$TARGETHOSTNAME</b>.   " &
 echo $TARGETHOSTNAME > $WORKINGDIR/etc/hostname
 echo "127.0.0.1 localhost" >> $WORKINGDIR/etc/hosts
@@ -324,23 +335,23 @@ killBar;
 # Clean up system:
 progressBar "Cleaning your fresh, new environment. " &
 sleep 1
+printf "[log] Clearing our Xsession-errors ... \n"
 chroot $WORKINGDIR echo "" > /root/.xsession-errors
-#chroot $WORKINGDIR cp -Rvvv /var/log/postgresql /tmp/ # Back these up!
-#chroot $WORKINGDIR rm /var/log/*
-#chroot $WORKINGDIR rm /var/log/*/*
-#chroot $WORKINGDIR rm /var/log/*/*/* # clean out files:
-#chroot $WORKINGDIR cp -Rvvv /tmp/postgresql /var/log/postgresql # replace!
+printf "[log] Doing APT-Clean in the chroot ... \n"
 chroot $WORKINGDIR apt clean # These will not remove directories:
-chroot $WORKINGDIR rm /var/lib/apt/lists/ftp*
-chroot $WORKINGDIR rm /var/lib/apt/lists/http*
-chroot $WORKINGDIR rm /root/.bash_history
-chroot $WORKINGDIR rm /root/.ssh/known_hosts
-chroot $WORKINGDIR rm -rf /root/Downloads/*
-chroot $WORKINGDIR rm -rf /root/Desktop/*
-chroot $WORKINGDIR rm -rf /root/Videos/*
+chroot $WORKINGDIR rm /var/lib/apt/lists/ftp* 2>/dev/null
+chroot $WORKINGDIR rm /var/lib/apt/lists/http* 2>/dev/null
+chroot $WORKINGDIR rm /root/.bash_history 2>/dev/null
+chroot $WORKINGDIR rm /root/.ssh/known_hosts 2>/dev/null
+chroot $WORKINGDIR rm -rf /root/Downloads/* 2>/dev/null
+chroot $WORKINGDIR rm -rf /root/Desktop/* 2>/dev/null
+chroot $WORKINGDIR rm -rf /root/Videos/* 2>/dev/null
 killBar;
 progressBar "Unmounting system. Preparing for landing." &
+printf "[log] Unountinf FS ... \n"
 umount $WORKINGDIR/proc
+sleep 1
+umount $WORKINGDIR/dev/pts
 sleep 1
 umount $WORKINGDIR/dev
 sleep 1
