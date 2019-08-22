@@ -37,6 +37,7 @@ TITLETEXT="Demon Linux - HDD Installation Tool"
 PARTITIONPROG="gparted"
 SPANFONT="<span font='Ubuntu Condensed 11'>" # Damn, this is a sexy font.
 OS="Demon Linux"
+EXCLUDEDIRS="lib/live,usr/lib/live,live,cdrom,mnt,proc,run,sys,media,appdev,demon-dev,tmp"
 ### Functions:
 #####=================
 
@@ -315,7 +316,7 @@ fi
 TARGETCDROM="/dev/cdrom" # For FSTAB
 killBar;
 progressBar "Copying the files to <b>/dev/$TARGETPART</b>.   \nThis <u>will</u> take a long time - ($(df -h 2>/dev/null | awk '$1 ~ /overlay|sr0|loop/ {gsub(/[.,]/,"",$2); gsub(/G/,"00",$2); gsub(/M/,"",$2); size+=$2}END{print size}')MB).   " &
-rsync -a / $WORKINGDIR --ignore-existing --exclude=/{lib/live,usr/lib/live,live,cdrom,mnt,proc,run,sys,media}
+rsync -a / $WORKINGDIR --ignore-existing --exclude=/{$EXCLUDEDIRS}
 mkdir -p $WORKINGDIR/{proc,mnt,run,sys,media/cdrom}
 # Remove live hooks:
 rm $WORKINGDIR/usr/share/initramfs-tools/hooks/live
