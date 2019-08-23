@@ -201,8 +201,7 @@ KERNEL=$(yad --list --column="New Kernel" $KERNELS \
    --text="\nPlease choose a kernel to use on your installed Demon.\n"\
     --image=/usr/share/demon/images/icons/64-icon-padded.png)
 KERNEL=$(echo $KERNEL|sed -r 's/\|//g'); # drop the pipe made from yad
-printf "\n\nKERNEL: $KERNEL \n\n"
-exit;
+printf "[log] KERNEL: $KERNEL"
 
 ### Timezone Setting
 $DIALOG $TITLE"$TITLETEXT" $YESNO $TEXT"$SPANFONT Is your system clock set to your current local time?   \n\nAnswering no will indicate it is set to UTC</span>"
