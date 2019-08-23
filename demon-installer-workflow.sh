@@ -84,8 +84,7 @@ killBar;
 $DIALOG $TITLE"$TITLETEXT" --button=Yes:0 --button=No:1 --button=Help:2 \
  --text="${SPANFONT}\nThis is the <b>$OS</b> Disk Installation Utility.\nIt is <b>HIGHLY RECOMMENDED</b> that <b>$OS</b>\n\
 is installed in a <u>virtualized environment</u> to ensure the best,\nuniform experience for all users.\n\nWeakNet Labs cannot \
-support every piece of hardware\nas I am only a single person.\n\nDo you want to continue?\n\nFor a complete video tutorial hit \
-<b>Help</b> below.</span>  " --height=35 --fixed
+support every piece of hardware\nas I am only a single person.\n\nDo you want to continue?</span>  \n" --height=35 --fixed
 
 ans=$?
 if [ $ans = 1 ]; then
@@ -231,10 +230,9 @@ fi
 echo "$ZONESINFO" > /etc/timezone
 cp /usr/share/zoneinfo/$ZONESINFO /etc/localtime
 
-## Confirmation:
-$DIALOG $TITLE"$TITLETEXT" $YESNO $TEXT"$SPANFONT <b>Please <u>verify</u> that this information is correct.\
-</b>\n\nYour $OS system will be installed on an<b> $FSTYPE</b> formatted <b>$TARGETPART</b> partition<b>\
-$HOMETEXT</b>   \n\nDo you want to continue?</span>" --fixed
+### Final Confirmation:
+$DIALOG $TITLE"$TITLETEXT" $YESNO $TEXT"$SPANFONT <b>\nPlease <u>verify</u> that the information below is correct.\
+</b>\n\nOperating System: <b>$OS</b>\nTimezone: <b>$ZONESINFO</b>\nFilesystem: <b>$FSTYPE</b>\nPartition: <b>$TARGETPART</b>\nKernel: <b>$KERNEL</b>\nHostname: <b>$TARGETHOSTNAME</b>\n\nDo you want to continue?</span>" --width=600 --fixed
 if [ $? != 0 ]; then
  quit;
 fi
