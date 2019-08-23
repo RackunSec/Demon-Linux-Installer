@@ -11,7 +11,9 @@ fi
 
 ### CONSTANTS:
 # OS Specific:
-export KERNEL=linux-image-amd64 # update this. Do not put the "linux-image-" part.
+#export KERNEL=linux-image-amd64 # update this. Do not put the "linux-image-" part.
+export KERNEL=linux-image-4.19.0-5-amd64
+export KERNELVERSION=4.19.0-5-amd64
 export OS="Demon Linux"
 export WORKINGDIR=/mnt/demon
 export TITLETEXT="Demon Linux - Live Installer"
@@ -318,8 +320,11 @@ chroot $WORKINGDIR /tmp/grub-install.sh
 printf "[log] Installing Grub to /dev/$PARTDRIVE\n";
 chroot $WORKINGDIR grub-install --root-directory=/ --no-floppy /dev/$PARTDRIVE;
 # I know that this is very specific as to what OS/kernel to install, but I am still working this aht:
+printf "[log] Re-installing kernel $KERNEL \n"
 chroot $WORKINGDIR apt -y -V install $KERNEL --reinstall # this will generate a new /boot/vmlinuz, hopefully.
-chroot $WORKINGDIR update-initramfs -c -k $KERNEL # create a new symlink for /initrd
+printf "[log] Updtae-InitRAMFS: -c -k $KERNEL \n"
+chroot $WORKINGDIR update-initramfs -c -k $KERNELVERSION # create a new symlink for /initrd
+printf "[log] update-grub: \n"
 chroot $WORKINGDIR update-grub # required to make grub.cfg!
 killBar;
 #$DIALOG $TITLE"$TITLETEXT" --button="I have completed Installing GRUB2":0 \
