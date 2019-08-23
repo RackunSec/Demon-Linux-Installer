@@ -12,7 +12,7 @@ fi
 ### CONSTANTS:
 # OS Specific:
 #export KERNEL=linux-image-amd64 # update this. Do not put the "linux-image-" part.
-export KERNEL=linux-image-4.19.0-5-amd64
+#export KERNEL=linux-image-4.19.0-5-amd64
 export KERNELVERSION=4.19.0-5-amd64
 export OS="Demon Linux"
 export WORKINGDIR=/mnt/demon
@@ -193,6 +193,16 @@ HFSTYPE=`echo $HFSTYPE | cut -d "|" -f 1`
 
 ### Get the chosen hostname of the new system:
 TARGETHOSTNAME=$($DIALOG $TITLE"$TITLETEXT" $ENTRY $TEXT"$SPANFONT Please enter the <b>hostname</b> for this newly installed system.</span>   ")
+
+### Get the kernel from the user:
+for kernel in $(apt-cache search linux-image|egrep -E '^linux-image.+[0-9]\..+64'|grep -v dbg|sort -u|awk '{print $1}'); do KERNELS="$KERNELS $kernel"; done
+KERNEL=$(yad --list --column="New Kernel" $KERNELS \
+  --width=500 --height=300 --window-icon=/usr/share/demon/images/icons/64-icon.png\
+   --text="\nPlease choose a kernel to use on your installed Demon.\n"\
+    --image=/usr/share/demon/images/icons/64-icon-padded.png)
+KERNEL=$(echo $KERNEL|sed -r 's/\|//g'); # drop the pipe made from yad
+printf "\n\nKERNEL: $KERNEL \n\n"
+exit;
 
 ### Timezone Setting
 $DIALOG $TITLE"$TITLETEXT" $YESNO $TEXT"$SPANFONT Is your system clock set to your current local time?   \n\nAnswering no will indicate it is set to UTC</span>"
