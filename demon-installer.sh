@@ -14,18 +14,18 @@ fi
 # Self updating:
 updateMe () {
   if [ ! -d ${DLI_ROOT}/${GITNAME} ] # it exists, pull latest
-    then
+    then # create a local repo:
       mkdir ${DLI_ROOT}/${GITNAME}
       git clone ${GITURL} ${DLI_ROOT}/${GITNAME}
-  else
-      git pull ${GITURL} ${DLI_ROOT}/${GITNAME}
+  else # cd into the repo and pull latest:
+      cd ${DLI_ROOT}/${GITNAME} && git pull ${GITURL} ${DLI_ROOT}/${GITNAME}
   fi
-  
+
   if [ ! -d /usr/share/demon/images/icons ]
     then
       mkdir -p /usr/share/demon/images/icons
   fi
-  
+
   # copy the new init file:
   cp ${DLI_ROOT}/${GITNAME}/demon-installer.sh /usr/local/sbin/demon-installer.sh
   chmod +x /usr/local/sbin/demon-installer.sh
