@@ -18,7 +18,7 @@ updateMe () {
       mkdir ${DLI_ROOT}/${GITNAME}
       git clone ${GITURL} ${DLI_ROOT}/${GITNAME}
   else # cd into the repo and pull latest:
-      cd ${DLI_ROOT}/${GITNAME} && git pull ${GITURL} ${DLI_ROOT}/${GITNAME}
+      cd ${DLI_ROOT}/${GITNAME} && git pull ${GITURL}
   fi
 
   if [ ! -d /usr/share/demon/images/icons ]
