@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 ### Updated for new staging area /var/demon/ ::muscle emoji goes here::
 ### Douglas Berdeaux, Demon Linux, WeakNet Laboratories, 2019
 ### Update the installer EACH TIME RAN
@@ -16,7 +16,7 @@ updateMe () {
   if [ ! -d ${DLI_ROOT}/${GITNAME} ] # it exists, pull latest
     then
       mkdir ${DLI_ROOT}/${GITNAME}
-      git clone ${GITURL}
+      git clone ${GITURL} ${DLI_ROOT}/${GITNAME}
   else
       git pull ${GITURL} ${DLI_ROOT}/${GITNAME}
   fi
