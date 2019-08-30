@@ -62,8 +62,8 @@ quit (){
 
 ### Ensure insternet connection
 progressBar "Creating an active internet connection.\n" &
-/etc/init.d/network-manager start
-dhclient -v
+#/etc/init.d/network-manager start
+dhclient -v # this should be fine.
 HTTPTEST=$(curl -sIL https://demonlinux.com/index.php | head -n 1 | awk '{print $2}')
 if [ "$HTTPTEST" != "200" ];
  then
