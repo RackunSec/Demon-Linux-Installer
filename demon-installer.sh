@@ -38,6 +38,9 @@ updateMe () {
   # copy the icon images:
   cp ${DLI_ROOT}/${GITNAME}/icons/* /usr/share/demon/images/icons/
 
+  # copy the desktop files:
+  cp ${DLI_ROOT}/${GITNAME}/desktop/* /usr/share/applications/
+
   # complete.
   printf "[!] Updated to the latest version. \n"
 }
