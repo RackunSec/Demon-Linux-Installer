@@ -16,7 +16,7 @@ updateMe () {
   if [ ! -d ${DLI_ROOT}/${GITNAME} ] # it exists, pull latest
     then
       mkdir ${DLI_ROOT}/${GITNAME}
-      git clone ${GITURL}/${GITNAME}
+      git clone ${GITURL}
   else
       git pull ${GITURL} ${DLI_ROOT}/${GITNAME}
   fi
