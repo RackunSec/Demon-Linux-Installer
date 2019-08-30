@@ -16,9 +16,11 @@ fi
 export KERNELVERSION=4.19.0-5-amd64
 export OS="Demon Linux"
 export WORKINGDIR=/mnt/demon
+export LOCALICONS=/usr/share/demon/images/icons/
 export TITLETEXT="Demon Linux - Live Installer"
-export WINDOWICON="/usr/share/demon/images/icons/demon-64-white.png"
-export WINDOWIMAGE="/usr/share/demon/images/icons/demon-64-padded-white.png"
+export WINDOWICON="${LOCALICONS}demon-64-white.png"
+export WINDOWIMAGE="${LOCALICONS}demon-install-icon.png"
+
 # App specific:
 export TITLE="--title "
 export ENTRY="--inputbox "
@@ -43,8 +45,8 @@ export SPANFONT="<span font='Ubuntu Condensed 11'>" # Damn, this is a sexy font.
 ### This function forks the loading bar message box using "tail":
 progressBar () {
  tail -f /etc/issue |yad --progress --pulsate --no-buttons --auto-close \
-  --text="$SPANFONT $1 </span>" --width=350 --height=17 --center --title=$TITLETEXT \
-  --window-icon=$WINDOWICON --percentage=13 --progress-text="Please Wait..." --image=$WINDOWIMAGE
+  --text="\n$SPANFONT $1 </span>" --width=350 --height=17 --center --title=$TITLETEXT \
+  --window-icon=$WINDOWICON --percentage=13 --progress-text=" Please Wait... " --image=$WINDOWIMAGE
 }
 
 ### This function stops the loading bar message box by killing tail:
@@ -70,14 +72,10 @@ if [ "$HTTPTEST" != "200" ];
 fi
 killBar
 
-### Get the latest version of me :) self-maintaining
-progressBar "Updating this installer. Please wait ... " &
-killBar
-
 ### Update YAD
-progressBar "Updating respositories and YAD ..." &
-apt update
-apt install yad -y
+progressBar "Updating software respositories ..." &
+  apt update
+  apt install yad -y
 killBar;
 
 ### Run the workflow:
@@ -196,9 +194,9 @@ TARGETHOSTNAME=$($DIALOG $TITLE"$TITLETEXT" $ENTRY $TEXT"$SPANFONT Please enter 
 ### Get the kernel from the user:
 for kernel in $(apt-cache search linux-image|egrep -E '^linux-image.+[0-9]\..+64'|grep -v dbg|sort -u|awk '{print $1}'); do KERNELS="$KERNELS $kernel"; done
 KERNEL=$(yad --list --column="New Kernel" $KERNELS \
-  --width=500 --height=300 --window-icon=/usr/share/demon/images/icons/64-icon.png\
+  --width=500 --height=300 --window-icon=64-icon.png\
    --text="\nPlease choose a kernel to use on your installed Demon.\n"\
-    --image=/usr/share/demon/images/icons/64-icon-padded.png)
+    --image=${WINDOWIMAGE})
 KERNEL=$(echo $KERNEL|sed -r 's/\|//g'); # drop the pipe made from yad
 printf "[log] KERNEL: $KERNEL"
 
