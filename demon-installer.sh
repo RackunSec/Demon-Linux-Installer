@@ -14,27 +14,28 @@ updateMe () {
   if [ ! -d $DLI_ROOT/$GITNAME ] # it exists, pull latest
     then
       mkdir $DLI_ROOT/$GITNAME
+      git clone ${GITURL}/${GITNAME}
+  else
+    cd $DLI_ROOT/$GITNAME
+    git pull $GITURL
   fi
-  cd $DLI_ROOT/$GITNAME
-  git pull $GITURL
+  if [ ! -d /usr/share/demon/images/icons ]
+    then
+      mkdir -p /usr/share/demon/images/icons
+  fi
+  # copy the new init file:
+  cp ${DLI_ROOT}/${GITNAME}/demon-installer.sh /usr/local/sbin/demon-installer.sh
+  chmod +x /usr/local/sbin/demon-installer.sh
 
- if [ ! -d /usr/share/demon/images/icons ]
-  then
-   mkdir -p /usr/share/demon/images/icons
- fi
- # copy the new init file:
- cp ${DLI_ROOT}/${GITNAME}/demon-installer.sh /usr/local/sbin/demon-installer.sh
- chmod +x /usr/local/sbin/demon-installer.sh
+  # copy the new workflow file:
+  cp ${DLI_ROOT}/${GITNAME}/demon-installer-workflow.sh /usr/local/sbin/demon-installer-workflow.sh
+  chmod +x /usr/local/sbin/demon-installer-workflow.sh
 
- # copy the new workflow file:
- cp ${DLI_ROOT}/${GITNAME}/demon-installer-workflow.sh /usr/local/sbin/demon-installer-workflow.sh
- chmod +x /usr/local/sbin/demon-installer-workflow.sh
+  # copy the icon images:
+  cp ${DLI_ROOT}/${GITNAME}/icons/* /usr/share/demon/images/icons/
 
- # copy the icon images:
- cp ${DLI_ROOT}/${GITNAME}/icons/* /usr/share/demon/images/icons/
-
- # complete.
- printf "[!] Updated to the latest version. \n"
+  # complete.
+  printf "[!] Updated to the latest version. \n"
 }
 
 # Step 1: UPDATE
