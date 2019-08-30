@@ -18,6 +18,7 @@ updateMe () {
       mkdir ${DLI_ROOT}/${GITNAME}
       git clone ${GITURL} ${DLI_ROOT}/${GITNAME}
   else # cd into the repo and pull latest:
+      printf "[DEBUG] Moving into repository: ${DLI_ROOT}/${GITNAME}\n"
       cd ${DLI_ROOT}/${GITNAME} && git pull ${GITURL}
   fi
 
