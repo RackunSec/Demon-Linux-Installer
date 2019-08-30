@@ -7,11 +7,11 @@ GITNAME=Demon-Linux-Installer
 GITURL=https://github.com/weaknetlabs/$GITNAME
 if [ ! -d $DLI_ROOT ]
   then
-    mkdir -p /var/demon/installer
+    mkdir -p $DLI_ROOT
 fi
 
 updateMe () {
-  if [ ! -d $DLI_ROOT/Demon-Linux-Installer ] # it exists, pull latest
+  if [ ! -d $DLI_ROOT/$GITNAME ] # it exists, pull latest
     then
       mkdir $DLI_ROOT/$GITNAME
   fi
