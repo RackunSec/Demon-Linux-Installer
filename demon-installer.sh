@@ -27,11 +27,11 @@ updateMe () {
  chmod +x /usr/local/sbin/demon-installer.sh
 
  # copy the new workflow file:
- cp /appdev/Demon-Linux-Installer/demon-installer-workflow.sh /usr/local/sbin/demon-installer-workflow.sh
+ cp ${DLI_ROOT}/${GITNAME}/demon-installer-workflow.sh /usr/local/sbin/demon-installer-workflow.sh
  chmod +x /usr/local/sbin/demon-installer-workflow.sh
 
  # copy the icon images:
- cp /appdev/Demon-Linux-Installer/icons/* /usr/share/demon/images/icons/
+ cp ${DLI_ROOT}/${GITNAME}/icons/* /usr/share/demon/images/icons/
 
  # complete.
  printf "[!] Updated to the latest version. \n"
