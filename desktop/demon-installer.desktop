@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Demon Linux Installer
+Comment=Install the Demon to a Hard Disk
+Exec=demon-installer.sh
+Icon=/usr/share/demon/images/icons/demon-install-icon.png
+StartupNotify=false
+Categories=demonlinux
