@@ -16,7 +16,7 @@ updateMe () {
       mkdir $DLI_ROOT/$GITNAME
   fi
   cd $DLI_ROOT/$GITNAME
-  git $GITURL
+  git pull $GITURL
 
  if [ ! -d /usr/share/demon/images/icons ]
   then
