@@ -4,25 +4,28 @@
 ### Update the installer EACH TIME RAN
 DLI_ROOT=/var/demon/installer
 GITNAME=Demon-Linux-Installer
-GITURL=https://github.com/weaknetlabs/$GITNAME
+GITURL=https://github.com/weaknetlabs/${GITNAME}
+
 if [ ! -d $DLI_ROOT ]
   then
     mkdir -p $DLI_ROOT
 fi
 
+# Self updating:
 updateMe () {
-  if [ ! -d $DLI_ROOT/$GITNAME ] # it exists, pull latest
+  if [ ! -d ${DLI_ROOT}/${GITNAME} ] # it exists, pull latest
     then
-      mkdir $DLI_ROOT/$GITNAME
+      mkdir ${DLI_ROOT}/${GITNAME}
       git clone ${GITURL}/${GITNAME}
   else
-    cd $DLI_ROOT/$GITNAME
-    git pull $GITURL
+      git pull ${GITURL} ${DLI_ROOT}/${GITNAME}
   fi
+  
   if [ ! -d /usr/share/demon/images/icons ]
     then
       mkdir -p /usr/share/demon/images/icons
   fi
+  
   # copy the new init file:
   cp ${DLI_ROOT}/${GITNAME}/demon-installer.sh /usr/local/sbin/demon-installer.sh
   chmod +x /usr/local/sbin/demon-installer.sh
