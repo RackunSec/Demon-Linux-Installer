@@ -9,6 +9,9 @@ if [ "$(whoami)" != "root" ]; then
  exit 1
 fi
 
+# move the installer app out of the menu temporarily:
+mv /usr/share/applications/demon-installer.desktop /tmp
+
 ### CONSTANTS:
 # OS Specific:
 #export KERNEL=linux-image-amd64 # update this. Do not put the "linux-image-" part.
@@ -383,3 +386,7 @@ if [ $ans = 0 ]; then
 elif [ $ans = 1 ];then # Awe, snacks!
  $DIALOG $TITLE"$TITLETEXT" $MSGBOX $TEXT"$SPANFONT Thank you for choosing <b>WeakNet Laboratories!</b>   \n\n~Douglas Berdeaux\nWeakNetLabs@Gmail.com</span>" --image=$WINDOWIMAGE --window-image=$WINDOWIMAGE;
 fi
+
+# move the installer app back into the menu:
+mv /tmp/demon-installer.desktop /usr/share/applications/
+exit 0;
