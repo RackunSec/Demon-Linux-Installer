@@ -444,7 +444,9 @@ GRUB
   printf "[log] update-initramfs: -c -k all \n"
   if [[ "$DISKENC" == "0" ]]
   then
-    chroot $WORKINGDIR update-initramfs -c -k $KERNELVERSION # create a new symlink for /initrd
+    #chroot $WORKINGDIR update-initramfs -c -k $KERNELVERSION # create a new symlink for /initrd
+    #chroot $WORKINGDIR update-initramfs -c -k all # create a new symlink for /initrd
+    chroot $WORKINGDIR update-initramfs -c -k $KERNEL # create a new symlink for /initrd
   fi
   printf "[log] update-grub: \n" # Set up GRUB for pretty:
   echo "GRUB_GFXMODE=1024x768" >> $WORKINGDIR/etc/default/grub
