@@ -348,6 +348,8 @@ progressBar "Copying the files to <b>/dev/$TARGETPART</b>.   \nThis <u>will</u> 
   printf "[log] Installing LightDM ... \n"
   chroot $WORKINGDIR apt update
   chroot $WORKINGDIR apt install lightdm -y
+  printf "[log] copying LightDM config into new installation ...\n"
+  cp /usr/share/demon/files/lightdm-gtk-greeter.conf $WORKINGDIR/etc/lightdm/ # copy the config file over to new installation
   if [[ "$DISKENC" == "1" ]]
   then
     # get UUID of disk
