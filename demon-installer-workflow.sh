@@ -340,14 +340,14 @@ progressBar "Copying the files to <b>/dev/$TARGETPART</b>.   \nThis <u>will</u> 
   printf "[log] Updating root password locally before syncing disks.\n"
   echo "root:${ROOTPASS}" | chpasswd
   printf "[log] Starting RSYNC ... \n"
+  printf "[log] Installing LightDM before running RSYNC ...\n"
+  apt install lightdm -y
   rsync -a / $WORKINGDIR --ignore-existing --exclude=/{lib/live,usr/lib/live,live,cdrom,mnt,proc,run,sys,media,appdev,demon-dev,tmp}
   # Remove the auto start of startx from boot up (force login with new password)
   printf "[log] Removing startx from rc.local ... \n"
   sed -ir 's/^su.*startx.*//' $WORKINGDIR/etc/rc.local
   # install lightdm:
   printf "[log] Installing LightDM ... \n"
-  chroot $WORKINGDIR apt update
-  chroot $WORKINGDIR apt install lightdm -y
   printf "[log] copying LightDM config into new installation ...\n"
   cp /usr/share/demon/files/lightdm-gtk-greeter.conf $WORKINGDIR/etc/lightdm/ # copy the config file over to new installation
   if [[ "$DISKENC" == "1" ]]
