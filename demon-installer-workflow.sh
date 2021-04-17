@@ -281,7 +281,7 @@ done
 HOMEPART="root" # install the /home into the /
 
 ### Get the chosen hostname of the new system:
-TARGETHOSTNAME=$($DIALOG $TITLE"$TITLETEXT" $ENTRY $TEXT"$SPANFONT Please enter the <b>hostname</b> for this newly installed system.</span>   ")
+TARGETHOSTNAME=$($DIALOG $TITLE"$TITLETEXT" $ENTRY $TEXT"$SPANFONT Please enter the <b>hostname</b> for this newly installed system.\n You can ONLY use the following characters: <b>[a-z] [A-Z] [0-9]</b>.\n</span>   ")
 
 ### Get the kernel from the user:
 for kernel in $(apt-cache search linux-image|egrep -E '^linux-image.+[0-9]\..+64'|grep -v dbg|sort -u|awk '{print $1}'); do KERNELS="$KERNELS $kernel"; done
