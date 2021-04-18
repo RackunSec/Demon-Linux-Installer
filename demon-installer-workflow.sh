@@ -136,8 +136,6 @@ $DIALOG $TITLE"$TITLETEXT" --button=Yes:0 --button=No:1 --button=Help:2 \
 is installed in a <u>virtualized environment</u> to ensure the best,\nuniform experience for all users.\n\nRackünSec cannot \
 support every piece of hardware\nas he is has a day job :( \n\nDo you want to continue?</span>  \n" --height=35 --fixed
 
-getRootPasswd;
-
 ans=$?
 if [ $ans = 1 ]; then
  exit 0
@@ -146,8 +144,10 @@ elif [ $ans = 2 ];then # Awe, snacks!
  firefox-esr 'https://demonlinux.com/tutorials.php' &
 fi
 
+getRootPasswd;
+
 ## Disk Encryption?
-$SECDIALOG $SECTITLE"$TITLETEXT" --button=Yes:1 --button=No:0 \
+$SECDIALOG $SECTITLE"$TITLETEXT" --button=Yes:1 --button=No:0 --button=Quit:2\
  --text="${SPANFONT}\nWould you like to enable full disk encryption? </span>  \n" --height=35 --fixed
 ans=$?
 if [ $ans = 1 ]; then
@@ -156,6 +156,8 @@ if [ $ans = 1 ]; then
 elif [ $ans = 0 ];then # Awe, snacks!
  export DISKENC=0
  printf "[log] Full disk encryption declined.\n"
+else
+ quit
 fi
 
 ### Create time adjustment file:
@@ -193,7 +195,7 @@ done
 
 # return the field separator. If not, this could cause undefinied behavior or crashes:
 IFS=$OFS
-PARTDRIVE=$($DIALOGMENU $TITLE"$TITLETEXT" $MENU  $TEXT"\nPlease select a drive to partition.   \n" $partdrivemenu)
+PARTDRIVE=$($DIALOGMENU $TITLE"$TITLETEXT" $MENU  $TEXT"\nPlease select a drive to partition. Before partitioning, ensure that you create an <b>MSDOS</b> partition table.  \n" $partdrivemenu)
 PARTDRIVE=$(echo $PARTDRIVE |sed -re 's/\|.*//')
 if [ "$PARTDRIVE" = "Exit" ]; then
  quit;
