@@ -64,8 +64,8 @@ getRootPasswd () {
   PASSWD2=2
   while [[ "$PASSWD1" != "$PASSWD2" ]]
   do
-    PASSWD1=$($SECDIALOG $TITLE"$TITLETEXT" $MSGBOX --text="\nPlease enter a STRONG <b>root</b> user password: "  --entry  --hide-text)
-    PASSWD2=$($SECDIALOG $TITLE"$TITLETEXT" $MSGBOX --text="\nPlease re-enter the <b>root</b> user password: "  --entry  --hide-text)
+    PASSWD1=$($DIALOG $SECTITLE"$TITLETEXT" $MSGBOX --text="\nPlease enter a STRONG <b>root</b> user password: "  --entry  --hide-text)
+    PASSWD2=$($DIALOG $SECTITLE"$TITLETEXT" $MSGBOX --text="\nPlease re-enter the <b>root</b> user password: "  --entry  --hide-text)
     if [[ "$PASSWD1" != "$PASSWD2" ]]
     then
       $DIALOG $TITLE"$TITLETEXT" $MSGBOX --text="\nThe passwords entered do not match.\nPlease try again."
